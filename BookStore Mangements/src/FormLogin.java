@@ -55,7 +55,7 @@ public class FormLogin extends JFrame implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == btnLogin){
-            if(txtName.getText().compareTo("roth") == 0 && txtPw.getText().compareTo("123456") == 0){
+            if(txtName.getText().compareTo("group1") == 0 && txtPw.getText().compareTo("123456") == 0){
                 AdminCashierDashboard ACD = new AdminCashierDashboard();   
                 dispose();
             }else{

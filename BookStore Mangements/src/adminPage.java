@@ -132,15 +132,15 @@ public class adminPage extends JFrame {
         EmployeeRecords.setIconTextGap(7);
         option.add(EmployeeRecords,gbcInOptionPanel);
         
-        //customer button
-        Image CustomerIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\customer-icon.png").getImage().getScaledInstance(23, 23, Image.SCALE_SMOOTH);
-        JButton CustomerRecords = new JButton("Customer Records",new ImageIcon(CustomerIconImage));
+        //sale button
+        Image SaleIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\customer-icon.png").getImage().getScaledInstance(23, 23, Image.SCALE_SMOOTH);
+        JButton SaleRecords = new JButton("Sale Records",new ImageIcon(SaleIconImage));
         gbcInOptionPanel.gridy = 3;
-        CustomerRecords.setHorizontalAlignment(SwingConstants.LEFT);
-        CustomerRecords.setFont(new Font("Arial", Font.PLAIN, 15));
-        CustomerRecords.setPreferredSize(new Dimension(0,38));
-        CustomerRecords.setIconTextGap(9);
-        option.add(CustomerRecords,gbcInOptionPanel);
+        SaleRecords.setHorizontalAlignment(SwingConstants.LEFT);
+        SaleRecords.setFont(new Font("Arial", Font.PLAIN, 15));
+        SaleRecords.setPreferredSize(new Dimension(0,38));
+        SaleRecords.setIconTextGap(9);
+        option.add(SaleRecords,gbcInOptionPanel);
         gbcInOptionPanel.gridy = 4;
         gbcInOptionPanel.weighty = 1.0; 
         gbcInOptionPanel.fill = GridBagConstraints.BOTH;

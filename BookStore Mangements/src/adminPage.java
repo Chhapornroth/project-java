@@ -28,7 +28,7 @@ public class adminPage extends JFrame {
     
     public adminPage(){
         setTitle("Admin Page");
-        setSize(1250, 750);
+        setSize(1250, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -164,11 +164,14 @@ public class adminPage extends JFrame {
         /*----- the top of the center panel -----*/
         
         /*----- the bottom of the center panel -----*/
-        JPanel BookInformationPanel = new JPanel();
         gbcCenterPanel.weighty = 5.0/6.0;
         gbcCenterPanel.gridy = 1;
-        BookInformationPanel.setBorder(new CompoundBorder(new TitledBorder(nameBottomPanel),new EmptyBorder(0,0,0,0)));
-        centerPanel.add(BookInformationPanel,gbcCenterPanel);
+        String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date"};
+        DefaultTableModel bookRecordsModel = new DefaultTableModel(null,bookRecordsColumn);
+        JTable bookRecordsTable = new JTable(bookRecordsModel);
+        JScrollPane scrollPane = new JScrollPane(bookRecordsTable);
+        bookRecordsModel.addRow(new Object[]{"1","book", "book", "book", "book"});
+        centerPanel.add(scrollPane, gbcCenterPanel);
         /*----- the bottom of the center panel -----*/
     } 
     private void ActionListener() {
@@ -191,10 +194,8 @@ public class adminPage extends JFrame {
         author = new JLabel("Author Name:");
         author.setFont(new Font("", Font.PLAIN, 14));
         gbcInputBookInformation.gridx = 2;
-        gbcInputBookInformation.gridy = 0;
         inputBookInformationPanel.add(author, gbcInputBookInformation);
         gbcInputBookInformation.gridx = 3;
-        gbcInputBookInformation.gridy = 0;
         txtAuthor = new JTextField();
         txtAuthor.setPreferredSize(new Dimension(250, 30));
         inputBookInformationPanel.add(txtAuthor, gbcInputBookInformation);
@@ -206,7 +207,6 @@ public class adminPage extends JFrame {
         gbcInputBookInformation.gridy = 1;
         inputBookInformationPanel.add(title, gbcInputBookInformation);
         gbcInputBookInformation.gridx = 1;
-        gbcInputBookInformation.gridy = 1;
         txtTitle = new JTextField();
         txtTitle.setPreferredSize(new Dimension(250, 30));
         inputBookInformationPanel.add(txtTitle, gbcInputBookInformation);
@@ -214,10 +214,8 @@ public class adminPage extends JFrame {
         stock = new JLabel("Stock: ");
         stock.setFont(new Font("", Font.PLAIN, 14));
         gbcInputBookInformation.gridx = 2;
-        gbcInputBookInformation.gridy = 1;
         inputBookInformationPanel.add(stock, gbcInputBookInformation);
         gbcInputBookInformation.gridx = 3;
-        gbcInputBookInformation.gridy = 1;
         txtStock = new JTextField();
         txtStock.setPreferredSize(new Dimension(250, 30));
         inputBookInformationPanel.add(txtStock, gbcInputBookInformation);
@@ -233,6 +231,7 @@ public class adminPage extends JFrame {
         JButton submitButton = new JButton("Add");
         submitButton.setFont(new Font("",Font.BOLD,15));
         submitButton.setForeground(Color.blue);
+        submitButton.setBackground(Color.blue);
         submitButton.setPreferredSize(new Dimension(80,40));
         gbcInputBookInformation.gridx = 3;
         gbcInputBookInformation.gridy = 3;
@@ -241,15 +240,10 @@ public class adminPage extends JFrame {
         inputBookInformationPanel.add(submitButton,gbcInputBookInformation);
         submitButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
+                String id = txtBookId.getText();
                 
             }
         });
-        
-        String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date"};
-        DefaultTableModel bookRecordsModel = new DefaultTableModel(null,bookRecordsColumn);
-        JTable bookRecordsTable = new JTable(bookRecordsModel);
-        JScrollPane scrollPane = new JScrollPane(bookRecordsTable);
-        bookRecordsTable.setFillsViewportHeight(true);
     }
 
     private void date(JPanel panel, GridBagConstraints gbc, int x, int y) {

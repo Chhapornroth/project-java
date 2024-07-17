@@ -1,12 +1,7 @@
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Label;
+import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import javax.swing.JFrame;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license

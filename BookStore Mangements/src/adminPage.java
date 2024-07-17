@@ -2,29 +2,39 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click infos://hoist/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click infos://hoist/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
 /**
  *
  * @author Y.CHHAPORNROTH
  */
-public class adminPage extends JFrame {
+public final class adminPage extends JFrame implements ActionListener, ItemListener{
     private final JPanel centerPanel = new JPanel();
     private final JPanel leftPanel = new JPanel();
     private final JPanel topLeftPanel = new JPanel();
     private final JPanel bottomLeftPanel = new JPanel();
-    private final JPanel inputBookInformationPanel = new JPanel();
-    private JLabel bookId, title, author, stock, date;
+    private final JPanel inputBookInformationPanel = new JPanel(new GridBagLayout());
+    private JTextField txtEmployeeId, txtEmployeeName, txtPhoneNumber;
+    private JCheckBox MaleCheckBox, FemaleCheckBox; 
     private JTextField txtBookId, txtTitle, txtAuthor, txtStock;
-    private JButton homeButton, BookRecordButton;
+    private JButton homeButton, BookRecordButton, EmployeeRecords, SaleRecords;
+    private final List<Book> bookData = new ArrayList<>();
+    private final List<Employee> employeeData = new ArrayList<>();
+    private JComboBox<String> dayComboBox, monthComboBox, yearComboBox;
+    JTable bookRecordsTable;
+    JTable employeeRecordsTable;
     
     public adminPage(){
         setTitle("Admin Page");
@@ -66,13 +76,13 @@ public class adminPage extends JFrame {
         JLabel adminIcon = new JLabel(iconImage);
         topLeftPanel.add(adminIcon,BorderLayout.NORTH);
         
-        JLabel textAdmin = new JLabel("WELLCOME TO THE ADMIDPAGE");
+        JLabel textAdmin = new JLabel("WELCOME TO THE ADMIDPAGE");
         textAdmin.setFont(new Font("Arial",Font.BOLD,14));
         textAdmin.setHorizontalAlignment(SwingConstants.CENTER);
         topLeftPanel.add(textAdmin);
     }
 
-    public void bottomLeftPanel(GridBagConstraints gbc) {
+    private void bottomLeftPanel(GridBagConstraints gbc) {
         bottomLeftPanel.setLayout(new GridBagLayout());
         bottomLeftPanel.setBorder(new CompoundBorder(new TitledBorder(""),new EmptyBorder(12,12,10,12)));
         gbc.weighty = 2.5/3.0;
@@ -94,61 +104,40 @@ public class adminPage extends JFrame {
         GridBagConstraints gbcInOptionPanel = new GridBagConstraints();
         bottomLeftPanel.add(option,BorderLayout.CENTER);
         
-        //home button
-        Image homeIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\home-icon.png").getImage().getScaledInstance(19, 19,Image.SCALE_SMOOTH);
-        homeButton = new JButton("Home", new ImageIcon(homeIconImage));
-        homeButton.setFont(new Font("Arial", Font.PLAIN, 15));
-        homeButton.setPreferredSize(new Dimension(0,38));
-        homeButton.setHorizontalAlignment(SwingConstants.LEFT);
-        homeButton.setIconTextGap(10);
-        homeButton.setBorder(new EmptyBorder(0,18,0,0));
-        gbcInOptionPanel.fill = GridBagConstraints.HORIZONTAL;
-        gbcInOptionPanel.weightx = 1.0;
-        gbcInOptionPanel.weighty = 0.0;
-        gbcInOptionPanel.gridx = 0;
-        gbcInOptionPanel.gridy = 0;
-        option.add(homeButton,gbcInOptionPanel);
-        
-        //book button     
-        Image BookIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\book-icon.png").getImage().getScaledInstance(22, 22, Image.SCALE_SMOOTH);
-        BookRecordButton = new JButton("Book Records",new ImageIcon(BookIconImage));
-        BookRecordButton.setFont(new Font("Arial", Font.PLAIN, 15));
-        gbcInOptionPanel.gridy = 1;
-        BookRecordButton.setHorizontalAlignment(SwingConstants.LEFT);
-        BookRecordButton.setPreferredSize(new Dimension(0,38));
-        BookRecordButton.setIconTextGap(10);
-        option.add(BookRecordButton,gbcInOptionPanel);
-        BookRecordButton.addActionListener((ActionEvent e) -> {
-            ActionListener();
-        });
-                
-        //employee button
-        Image EmployeeIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\employee-icon.png").getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
-        JButton EmployeeRecords = new JButton("Employee Records",new ImageIcon(EmployeeIconImage));
-        gbcInOptionPanel.gridy = 2;
-        EmployeeRecords.setHorizontalAlignment(SwingConstants.LEFT);
-        EmployeeRecords.setFont(new Font("Arial", Font.PLAIN, 15));
-        EmployeeRecords.setPreferredSize(new Dimension(0,38));
-        EmployeeRecords.setIconTextGap(7);
-        option.add(EmployeeRecords,gbcInOptionPanel);
-        
-        //sale button
-        Image SaleIconImage = new ImageIcon("D:\\Java\\project-java\\icon\\customer-icon.png").getImage().getScaledInstance(23, 23, Image.SCALE_SMOOTH);
-        JButton SaleRecords = new JButton("Sale Records",new ImageIcon(SaleIconImage));
-        gbcInOptionPanel.gridy = 3;
-        SaleRecords.setHorizontalAlignment(SwingConstants.LEFT);
-        SaleRecords.setFont(new Font("Arial", Font.PLAIN, 15));
-        SaleRecords.setPreferredSize(new Dimension(0,38));
-        SaleRecords.setIconTextGap(9);
-        option.add(SaleRecords,gbcInOptionPanel);
+        //Button
+        homeButton = buttonInit(option, gbcInOptionPanel, homeButton, "Home", 19, 0, 12);
+        BookRecordButton = buttonInit(option, gbcInOptionPanel, BookRecordButton, "Book Records", 22, 1, 10);
+        EmployeeRecords = buttonInit(option, gbcInOptionPanel, EmployeeRecords, "Employee Records", 25, 2, 7);
+        SaleRecords = buttonInit(option, gbcInOptionPanel, SaleRecords, "Sale Records", 23, 3, 9);
+        //this panel is here because we want to make a big gap or space below saleRecords Button
         gbcInOptionPanel.gridy = 4;
         gbcInOptionPanel.weighty = 1.0; 
         gbcInOptionPanel.fill = GridBagConstraints.BOTH;
         option.add(new JPanel(), gbcInOptionPanel);
+        
+        homeButton.addActionListener(this);
+        BookRecordButton.addActionListener(this);
+        EmployeeRecords.addActionListener(this);
+        SaleRecords.addActionListener(this);
         /*---------- Options Panel ----------*/
     }
+    private JButton buttonInit(JPanel panel, GridBagConstraints gbc, JButton button, String buttonName, int iconSize, int y, int gapBetweenIconAndButtonName){
+        Image IconImage = new ImageIcon("D:\\Java\\project-java\\icon\\" + buttonName +  "-icon.png").getImage().getScaledInstance(iconSize, iconSize,Image.SCALE_SMOOTH);
+        button = new JButton(buttonName, new ImageIcon(IconImage));
+        button.setFont(new Font("Arial", Font.PLAIN, 15));
+        button.setPreferredSize(new Dimension(0,38));
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setIconTextGap(gapBetweenIconAndButtonName);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        panel.add(button,gbc);
+        return button;
+    }
     
-    public void centerRightPanel(String namePanel, String nameTopPanel, String nameBottomPanel){
+    public void centerRightPanel(String namePanel, String nameTopPanel){
         centerPanel.setBorder(new CompoundBorder(new TitledBorder(namePanel),new EmptyBorder(0,10,9,10)));
         centerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbcCenterPanel = new GridBagConstraints();
@@ -166,102 +155,231 @@ public class adminPage extends JFrame {
         /*----- the bottom of the center panel -----*/
         gbcCenterPanel.weighty = 5.0/6.0;
         gbcCenterPanel.gridy = 1;
-        String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date"};
-        DefaultTableModel bookRecordsModel = new DefaultTableModel(null,bookRecordsColumn);
-        JTable bookRecordsTable = new JTable(bookRecordsModel);
-        JScrollPane scrollPane = new JScrollPane(bookRecordsTable);
-        bookRecordsModel.addRow(new Object[]{"1","book", "book", "book", "book"});
-        centerPanel.add(scrollPane, gbcCenterPanel);
+        if(namePanel.equals("BOOK RECORDS")){
+            String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date", "Actions"};
+            DefaultTableModel bookRecordsModel = new DefaultTableModel(bookRecordsColumn, 0);
+            bookRecordsTable = new JTable(bookRecordsModel);
+
+            bookRecordsTable.getTableHeader().setReorderingAllowed(false);
+            JScrollPane scrollPane = new JScrollPane(bookRecordsTable);
+            centerPanel.add(scrollPane, gbcCenterPanel);
+            bookRecordsTable.getColumnModel().getColumn(5).setPreferredWidth(50);
+            bookRecordsTable.getColumnModel().getColumn(5).setMaxWidth(50);
+            bookRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsEditor(bookRecordsTable));
+        }else if(namePanel.equals("EMPLOYEE RECORDS")){
+            String[] columnNames = {"ID", "Full Name", "Gender", "Phone Number", "Date of Birth"};
+            DefaultTableModel employeeRecordsModel = new DefaultTableModel(columnNames, 0);
+            employeeRecordsTable = new JTable(employeeRecordsModel);
+            JScrollPane scrollPane = new JScrollPane(employeeRecordsTable);
+            centerPanel.add(scrollPane, gbcCenterPanel);
+        }
         /*----- the bottom of the center panel -----*/
-    } 
-    private void ActionListener() {
-        centerRightPanel("BOOK RECORDS", "ADDING BOOK INFORMATIONS", "BOOK INFORMATIONS");
-        inputBookInformationPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbcInputBookInformation = new GridBagConstraints();
-        
-        gbcInputBookInformation.insets = new Insets(0, 10, 10, 10);
-        bookId = new JLabel("Book ID: ");
-        bookId.setFont(new Font("", Font.PLAIN, 14));
-        gbcInputBookInformation.gridx = 0;
-        gbcInputBookInformation.gridy = 0;
-        inputBookInformationPanel.add(bookId, gbcInputBookInformation);
-        gbcInputBookInformation.gridx = 1;
-        gbcInputBookInformation.gridy = 0;
-        txtBookId = new JTextField();
-        txtBookId.setPreferredSize(new Dimension(250, 30));
-        inputBookInformationPanel.add(txtBookId, gbcInputBookInformation);
-
-        author = new JLabel("Author Name:");
-        author.setFont(new Font("", Font.PLAIN, 14));
-        gbcInputBookInformation.gridx = 2;
-        inputBookInformationPanel.add(author, gbcInputBookInformation);
-        gbcInputBookInformation.gridx = 3;
-        txtAuthor = new JTextField();
-        txtAuthor.setPreferredSize(new Dimension(250, 30));
-        inputBookInformationPanel.add(txtAuthor, gbcInputBookInformation);
-
-        gbcInputBookInformation.insets = new Insets(10, 10, 0, 10);
-        title = new JLabel("Book Title: ");
-        title.setFont(new Font("", Font.PLAIN, 14));
-        gbcInputBookInformation.gridx = 0;
-        gbcInputBookInformation.gridy = 1;
-        inputBookInformationPanel.add(title, gbcInputBookInformation);
-        gbcInputBookInformation.gridx = 1;
-        txtTitle = new JTextField();
-        txtTitle.setPreferredSize(new Dimension(250, 30));
-        inputBookInformationPanel.add(txtTitle, gbcInputBookInformation);
-
-        stock = new JLabel("Stock: ");
-        stock.setFont(new Font("", Font.PLAIN, 14));
-        gbcInputBookInformation.gridx = 2;
-        inputBookInformationPanel.add(stock, gbcInputBookInformation);
-        gbcInputBookInformation.gridx = 3;
-        txtStock = new JTextField();
-        txtStock.setPreferredSize(new Dimension(250, 30));
-        inputBookInformationPanel.add(txtStock, gbcInputBookInformation);
-
-        JPanel datePanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbcDate = new GridBagConstraints();
-        date(datePanel, gbcDate, 0, 0);
-        gbcInputBookInformation.gridx = 0;
-        gbcInputBookInformation.gridy = 2;
-        gbcInputBookInformation.gridwidth = 4;
-        inputBookInformationPanel.add(datePanel, gbcInputBookInformation);
-        
-        JButton submitButton = new JButton("Add");
-        submitButton.setFont(new Font("",Font.BOLD,15));
-        submitButton.setForeground(Color.blue);
-        submitButton.setBackground(Color.blue);
-        submitButton.setPreferredSize(new Dimension(80,40));
-        gbcInputBookInformation.gridx = 3;
-        gbcInputBookInformation.gridy = 3;
-        gbcInputBookInformation.gridwidth = 3;
-        gbcInputBookInformation.anchor = GridBagConstraints.SOUTHEAST;
-        inputBookInformationPanel.add(submitButton,gbcInputBookInformation);
-        submitButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                String id = txtBookId.getText();
+    }
+    
+    private void clearPanel(){
+        centerPanel.removeAll();
+        inputBookInformationPanel.removeAll();
+        centerPanel.revalidate();
+        centerPanel.repaint();
+        inputBookInformationPanel.revalidate();
+        inputBookInformationPanel.repaint();
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        switch(command){
+            case "Home" ->{
+                clearPanel();
                 
+                break;
             }
-        });
+            case "Book Records" ->{
+                clearPanel();
+                centerRightPanel("BOOK RECORDS", "ADDING BOOK INFORMATION");
+                GridBagConstraints gbc = new GridBagConstraints();
+                
+                gbc.insets = new Insets(0, 10, 10, 10);
+                txtBookId = itemPosition(gbc, inputBookInformationPanel, "Book ID: ", 0, 0, txtBookId, 1, 0);
+                txtAuthor = itemPosition(gbc, inputBookInformationPanel, "Author Name:", 2, 0, txtAuthor, 3, 0);
+                
+                gbc.insets = new Insets(10, 10, 0, 10);
+                txtTitle = itemPosition(gbc, inputBookInformationPanel, "Book Title: ", 0, 1, txtTitle, 1, 1);
+                txtStock = itemPosition(gbc, inputBookInformationPanel, "Stock: ", 2, 1, txtStock, 3, 1);
+                
+                JPanel datePanel = new JPanel(new GridBagLayout());
+                GridBagConstraints gbcDate = new GridBagConstraints();
+                date(datePanel, gbcDate, "Adding Date:", 0, 0);
+                gbc.gridx = 0;
+                gbc.gridy = 2;
+                gbc.gridwidth = 4;
+                inputBookInformationPanel.add(datePanel, gbc);
+                
+                JButton submitButton = new JButton("Add");
+                submitButton.setFont(new Font("",Font.BOLD,15));
+                submitButton.setForeground(Color.blue);
+                submitButton.setBackground(Color.blue);
+                submitButton.setPreferredSize(new Dimension(80,40));
+                gbc.gridx = 3;
+                gbc.gridy = 3;
+                gbc.gridwidth = 3;
+                gbc.anchor = GridBagConstraints.SOUTHEAST;
+                inputBookInformationPanel.add(submitButton, gbc);
+                submitButton.addActionListener((ActionEvent e1) -> {
+                    String id = txtBookId.getText();
+                    String author = txtAuthor.getText();
+                    String name = txtTitle.getText();
+                    int Stock = 0; 
+                    try {
+                        Stock = Integer.parseInt(txtStock.getText());
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Stock must be a valid number");
+                        return; 
+                    }
+                    
+                    if (id.isEmpty() || author.isEmpty() || name.isEmpty() || Stock <= 0) {
+                        JOptionPane.showMessageDialog(null,"Please fill in all fields");
+                    } else {
+                        String Date = getSelectedDate();
+                        bookData.add(new Book(id, name, author, Stock, Date));
+                        updateBookRecordTable();
+                        txtBookId.setText("");
+                        txtAuthor.setText("");
+                        txtTitle.setText("");
+                        txtStock.setText("");
+                        dayComboBox.setSelectedIndex(0);
+                        monthComboBox.setSelectedIndex(0);
+                        yearComboBox.setSelectedIndex(0);
+                    }
+                });
+                break;
+            }
+            case "Employee Records" ->{              
+                clearPanel();
+                centerRightPanel("EMPLOYEE RECORDS", "ADDING EMPLOYEE INFORMATION");
+                GridBagConstraints gbc = new GridBagConstraints();
+                
+                gbc.insets = new Insets(0, 10, 10, 10);
+                txtEmployeeId = itemPosition(gbc, inputBookInformationPanel, "Employee ID:", 0, 0, txtEmployeeId, 1, 0);
+                gbc.gridx = 2;
+                JLabel checkLabel = new JLabel("Gender: ");
+                checkLabel.setFont(new Font("", Font.PLAIN, 14));
+                inputBookInformationPanel.add(checkLabel, gbc);
+                gbc.gridx = 3;
+                JPanel checkPanel = new JPanel(new FlowLayout());
+                inputBookInformationPanel.add(checkPanel, gbc);
+                MaleCheckBox = itemPosition(checkPanel, "Male", MaleCheckBox);
+                MaleCheckBox.addItemListener(this);
+                FemaleCheckBox = itemPosition(checkPanel, "Female", FemaleCheckBox);
+                FemaleCheckBox.addItemListener(this);
+                
+                gbc.insets = new Insets(10, 10, 0, 10);
+                txtEmployeeName = itemPosition(gbc, inputBookInformationPanel, "Full Name:", 0, 1, txtEmployeeName, 1, 1);
+                txtPhoneNumber = itemPosition(gbc, inputBookInformationPanel, "Telephone:", 2, 1, txtPhoneNumber, 3, 1);
+                
+                JPanel datePanel = new JPanel(new GridBagLayout());
+                GridBagConstraints gbcDate = new GridBagConstraints();
+                date(datePanel, gbcDate, "Date of Birth:", 0, 0);
+                gbc.gridx = 0;
+                gbc.gridy = 2;
+                gbc.gridwidth = 4;
+                inputBookInformationPanel.add(datePanel, gbc);
+                
+                JButton submitButton = new JButton("Add");
+                submitButton.setFont(new Font("",Font.BOLD,15));
+                submitButton.setForeground(Color.blue);
+                submitButton.setBackground(Color.blue);
+                submitButton.setPreferredSize(new Dimension(80,40));
+                gbc.gridx = 3;
+                gbc.gridy = 3;
+                gbc.gridwidth = 3;
+                gbc.anchor = GridBagConstraints.SOUTHEAST;
+                inputBookInformationPanel.add(submitButton, gbc);
+                submitButton.addActionListener((ActionEvent e1) -> {
+                    String id = txtEmployeeId.getText();
+                    String name = txtEmployeeName.getText();
+                    String gender = "";
+                    if(MaleCheckBox.isSelected()){
+                        gender = "Male";
+                    }else if(FemaleCheckBox.isSelected()){
+                        gender = "Female";
+                    }
+                    String phoneNumber = txtPhoneNumber.getText();
+                    if (id.isEmpty()|| gender.isEmpty() || name.isEmpty() || phoneNumber.isEmpty()) {
+                        JOptionPane.showMessageDialog(null,"Please fill in all fields");
+                    } else {
+                        String dateOfBirth = getSelectedDate();
+                        employeeData.add(new Employee(id, name, gender, phoneNumber, dateOfBirth));
+                        updateEmployeeRecordTable();
+                        txtEmployeeId.setText("");
+                        MaleCheckBox.setSelected(false);
+                        FemaleCheckBox.setSelected(false);
+                        txtEmployeeName.setText("");
+                        txtPhoneNumber.setText("");
+                        dayComboBox.setSelectedIndex(0);
+                        monthComboBox.setSelectedIndex(0);
+                        yearComboBox.setSelectedIndex(0);
+                    }
+                });
+                break;
+            }
+            case "Sale Records" ->{
+                break;
+            }
+            
+        }
+    }
+    private JTextField itemPosition(GridBagConstraints gbc, JPanel panel, String name, int labelX, int labelY , JTextField textField, int textFieldX, int textFieldY){
+        JLabel label = new JLabel(name);
+        textField = new JTextField();
+        label.setFont(new Font("", Font.PLAIN, 14));
+        gbc.gridx = labelX;
+        gbc.gridy = labelY;
+        panel.add(label, gbc);
+        gbc.gridx = textFieldX;     
+        gbc.gridy = textFieldY;
+        textField.setPreferredSize(new Dimension(250, 30));
+        panel.add(textField, gbc);
+        return textField;
+    }
+    private JCheckBox itemPosition(JPanel panel, String name, JCheckBox checkBox){
+        checkBox = new JCheckBox(name);
+        checkBox.setFont(new Font("", Font.PLAIN, 14));
+        panel.add(checkBox);
+        return checkBox;
+    }
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+            if (e.getSource() == MaleCheckBox && e.getStateChange() == ItemEvent.SELECTED) {
+                FemaleCheckBox.setSelected(false);
+            } else if (e.getSource() == FemaleCheckBox && e.getStateChange() == ItemEvent.SELECTED) {
+                MaleCheckBox.setSelected(false);
+            }
     }
 
-    private void date(JPanel panel, GridBagConstraints gbc, int x, int y) {
-        String[] days = IntStream.rangeClosed(1, 31).mapToObj(Integer::toString).toArray(String[]::new);
-        JComboBox<String> dayComboBox = new JComboBox<>(days);
+    public void date(JPanel panel, GridBagConstraints gbc, String labelName, int x, int y) {
+        String[] days = IntStream.rangeClosed(0, 31).mapToObj(Integer::toString).toArray(String[]::new);
+        days[0] = "Select";
+        String[] months = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        int sy = 0, fy = 0;
+        if (labelName.equals("Adding Date:")){
+            sy = 2023;
+            fy = 2030;
+        } else if(labelName.equals("Date of Birth:")){
+            sy = 1974;
+            fy = 2024;
+        }
+        String[] years = IntStream.rangeClosed(sy, fy).mapToObj(Integer::toString).toArray(String[]::new);
+        years[0] = "Select";
+        dayComboBox = new JComboBox<>(days);
+        monthComboBox = new JComboBox<>(months);
+        yearComboBox = new JComboBox<>(years);
         
-        String[] months = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-        JComboBox<String> monthComboBox = new JComboBox<>(months);
-        
-        String[] years = IntStream.rangeClosed(2024, 2034).mapToObj(Integer::toString).toArray(String[]::new);
-        JComboBox<String> yearComboBox = new JComboBox<>(years);
-        
+        JLabel Name = new JLabel(labelName);
         gbc.insets = new Insets(10, 5, 10, 10);
-        date = new JLabel("Adding Date: ");
-        date.setFont(new Font("", Font.PLAIN, 14));
+        Name.setFont(new Font("", Font.PLAIN, 14));
         gbc.gridx = x;
         gbc.gridy = y;
-        panel.add(date, gbc);
+        panel.add(Name, gbc);
         
         addDateComponent(panel, gbc, " Day: ", dayComboBox, x + 1);
         addDateComponent(panel, gbc, " Month: ", monthComboBox, x + 3);
@@ -274,5 +392,26 @@ public class adminPage extends JFrame {
         panel.add(label, gbc);
         gbc.gridx = gridx + 1;
         panel.add(comboBox, gbc);
+    }
+
+    private String getSelectedDate() {
+    String day = (String) dayComboBox.getSelectedItem();
+    String month = (String) monthComboBox.getSelectedItem();
+    String year = (String) yearComboBox.getSelectedItem();
+    return day + "/" + month + "/" + year;
+}
+    private void updateBookRecordTable() {
+        DefaultTableModel model = (DefaultTableModel) bookRecordsTable.getModel();
+        model.setRowCount(0); // Clear the table
+        for (Book book : bookData) {
+            model.addRow(new Object[]{book.getId(), book.getTitle(), book.getAuthor(), book.getStock(), book.getDate()});
+        }
+    } 
+    private void updateEmployeeRecordTable() {
+        DefaultTableModel model = (DefaultTableModel) employeeRecordsTable.getModel();
+        model.setRowCount(0); // Clear the table
+        for (Employee employee : employeeData) {
+            model.addRow(new Object[]{employee.getId(), employee.getName(), employee.getGender(), employee.getPhoneNumber(), employee.getDateOfBirth()});
+        }
     }
 }

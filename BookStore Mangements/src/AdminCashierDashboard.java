@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click infos://hoist/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click infos://hoist/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
 /**
@@ -27,7 +27,7 @@ public class AdminCashierDashboard extends JFrame{
         
         //add action to Admin Button
         adminButton.addActionListener((ActionEvent e) -> {
-            adminPage adminPage = new adminPage();
+            AdminPage adminPage = new AdminPage();
             dispose();
         });
         //add action to Cashier Button
@@ -72,5 +72,4 @@ public class AdminCashierDashboard extends JFrame{
         Image resizedImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImg);
     }
-    
 }

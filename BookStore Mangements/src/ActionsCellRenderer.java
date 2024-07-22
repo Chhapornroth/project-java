@@ -6,7 +6,7 @@ public class ActionsCellRenderer extends JPanel implements TableCellRenderer {
     JButton btn;
     public ActionsCellRenderer() {
         setLayout(new BorderLayout());
-        btn = new JButton("---");
+        btn = new JButton("⁝");
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(true);
         btn.setBackground(Color.WHITE);

@@ -7,6 +7,8 @@ import java.awt.event.ItemListener;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -21,7 +23,8 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Y.CHHAPORNROTH
  */
-public final class adminPage extends JFrame implements ActionListener, ItemListener{
+public class AdminPage extends JFrame implements ActionListener, ItemListener{
+    private static final Logger LOGGER = Logger.getLogger(AdminPage.class.getName());
     private final JPanel centerPanel = new JPanel();
     private final JPanel leftPanel = new JPanel();
     private final JPanel topLeftPanel = new JPanel();
@@ -30,11 +33,10 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
     private JTextField txtEmployeeId, txtEmployeeName, txtPhoneNumber;
     private JCheckBox MaleCheckBox, FemaleCheckBox;
     private JTextField txtBookId, txtTitle, txtAuthor, txtStock;
-    private JButton homeButton, BookRecordButton, EmployeeRecords, SaleRecords;
     private JComboBox<String> dayComboBox, monthComboBox, yearComboBox;
     JTable bookRecordsTable;
     JTable employeeRecordsTable;
-    String url = "jdbc:mariadb://localhost:3306/bookstoremanagements";
+    String url = "jdbc:mariadb://localhost:3306/Bookstore Managements";
     String user = "root";
     String password = "";
     Connection connection;
@@ -42,7 +44,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
     Statement statement;
     ResultSet resultSet;
 
-    public adminPage(){
+    public AdminPage(){
         setTitle("Admin Page");
         setSize(1250, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,10 +110,11 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         bottomLeftPanel.add(option,BorderLayout.CENTER);
 
         //Button
-        homeButton = buttonInit(option, gbcInOptionPanel, homeButton, "Home", 19, 0, 12);
-        BookRecordButton = buttonInit(option, gbcInOptionPanel, BookRecordButton, "Book Records", 22, 1, 10);
-        EmployeeRecords = buttonInit(option, gbcInOptionPanel, EmployeeRecords, "Employee Records", 25, 2, 7);
-        SaleRecords = buttonInit(option, gbcInOptionPanel, SaleRecords, "Sale Records", 23, 3, 9);
+        JButton homeButton = buttonInit(option, gbcInOptionPanel, "Home", 19, 0, 12);
+        JButton bookRecordButton = buttonInit(option, gbcInOptionPanel, "Book Records", 22, 1, 10);
+        JButton employeeRecords = buttonInit(option, gbcInOptionPanel, "Employee Records", 25, 2, 7);
+        JButton saleRecords = buttonInit(option, gbcInOptionPanel, "Sale Records", 23, 3, 9);
+
         //this panel is here because we want to make a big gap or space below saleRecords Button
         gbcInOptionPanel.gridy = 4;
         gbcInOptionPanel.weighty = 1.0;
@@ -119,13 +122,14 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         option.add(new JPanel(), gbcInOptionPanel);
 
         homeButton.addActionListener(this);
-        BookRecordButton.addActionListener(this);
-        EmployeeRecords.addActionListener(this);
-        SaleRecords.addActionListener(this);
+        bookRecordButton.addActionListener(this);
+        employeeRecords.addActionListener(this);
+        saleRecords.addActionListener(this);
         /*---------- Options Panel ----------*/
     }
-    private JButton buttonInit(JPanel panel, GridBagConstraints gbc, JButton button, String buttonName, int iconSize, int y, int gapBetweenIconAndButtonName){
+    private JButton buttonInit(JPanel panel, GridBagConstraints gbc, String buttonName, int iconSize, int y, int gapBetweenIconAndButtonName){
         Image IconImage = new ImageIcon("D:\\Java\\project-java\\icon\\" + buttonName +  "-icon.png").getImage().getScaledInstance(iconSize, iconSize,Image.SCALE_SMOOTH);
+        JButton button;
         button = new JButton(buttonName, new ImageIcon(IconImage));
         button.setFont(new Font("Arial", Font.PLAIN, 15));
         button.setPreferredSize(new Dimension(0,38));
@@ -204,16 +208,16 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 gbc.insets = new Insets(0, 10, 10, 10);
-                txtBookId = itemPosition(gbc, inputBookInformationPanel, "Book ID: ", 0, 0, txtBookId, 1, 0);
-                txtAuthor = itemPosition(gbc, inputBookInformationPanel, "Author Name:", 2, 0, txtAuthor, 3, 0);
+                txtBookId = itemPosition(gbc, inputBookInformationPanel, "Book ID: ", 0, 0, 1, 0, 250);
+                txtAuthor = itemPosition(gbc, inputBookInformationPanel, "Author Name:", 2, 0, 3, 0, 250);
 
                 gbc.insets = new Insets(10, 10, 0, 10);
-                txtTitle = itemPosition(gbc, inputBookInformationPanel, "Book Title: ", 0, 1, txtTitle, 1, 1);
-                txtStock = itemPosition(gbc, inputBookInformationPanel, "Stock: ", 2, 1, txtStock, 3, 1);
+                txtTitle = itemPosition(gbc, inputBookInformationPanel, "Book Title: ", 0, 1, 1, 1, 250);
+                txtStock = itemPosition(gbc, inputBookInformationPanel, "Stock: ", 2, 1, 3, 1, 250);
 
                 JPanel datePanel = new JPanel(new GridBagLayout());
                 GridBagConstraints gbcDate = new GridBagConstraints();
-                date(datePanel, gbcDate, "Adding Date:", 0, 0);
+                date(datePanel, gbcDate, "Adding Date:");
                 gbc.gridx = 0;
                 gbc.gridy = 2;
                 gbc.gridwidth = 4;
@@ -232,7 +236,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 submitButton.addActionListener((ActionEvent e1) -> {
                     String author = txtAuthor.getText();
                     String name = txtTitle.getText();
-                    int Stock = 0;
+                    int Stock;
                     try {
                         Stock = Integer.parseInt(txtStock.getText());
                     } catch (NumberFormatException ex) {
@@ -245,7 +249,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                     } else {
                         try {
                             connection = DriverManager.getConnection(url, user, password);
-                            preparedStatement = connection.prepareStatement("INSERT INTO tbl_book_records(title, author_name, stock, adding_date) VALUES (?,?,?,?)");
+                            preparedStatement = connection.prepareStatement("INSERT INTO tbl_Book_Records(title, author_name, stock, adding_date) VALUES (?,?,?,?)");
                             preparedStatement.setString(1, name);
                             preparedStatement.setString(2, author);
                             preparedStatement.setInt(3, Stock);
@@ -259,14 +263,14 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                                     preparedStatement.close();
                                 }
                             } catch (SQLException e2) {
-                                e2.printStackTrace();
+                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
                             try {
                                 if (connection != null) {
                                     connection.close();
                                 }
                             } catch (SQLException e2) {
-                                e2.printStackTrace();
+                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
                         }
                         updateBookRecordTable(bookRecordsTable);
@@ -286,7 +290,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 gbc.insets = new Insets(0, 10, 10, 10);
-                txtEmployeeId = itemPosition(gbc, inputBookInformationPanel, "Employee ID:", 0, 0, txtEmployeeId, 1, 0);
+                txtEmployeeId = itemPosition(gbc, inputBookInformationPanel, "Employee ID:", 0, 0, 1, 0, 250);
                 gbc.gridx = 2;
                 JLabel checkLabel = new JLabel("Gender: ");
                 checkLabel.setFont(new Font("", Font.PLAIN, 14));
@@ -294,18 +298,18 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 gbc.gridx = 3;
                 JPanel checkPanel = new JPanel(new FlowLayout());
                 inputBookInformationPanel.add(checkPanel, gbc);
-                MaleCheckBox = itemPosition(checkPanel, "Male", MaleCheckBox);
+                MaleCheckBox = itemPosition(checkPanel, "Male");
                 MaleCheckBox.addItemListener(this);
-                FemaleCheckBox = itemPosition(checkPanel, "Female", FemaleCheckBox);
+                FemaleCheckBox = itemPosition(checkPanel, "Female");
                 FemaleCheckBox.addItemListener(this);
 
                 gbc.insets = new Insets(10, 10, 0, 10);
-                txtEmployeeName = itemPosition(gbc, inputBookInformationPanel, "Full Name:", 0, 1, txtEmployeeName, 1, 1);
-                txtPhoneNumber = itemPosition(gbc, inputBookInformationPanel, "Telephone:", 2, 1, txtPhoneNumber, 3, 1);
+                txtEmployeeName = itemPosition(gbc, inputBookInformationPanel, "Full Name:", 0, 1, 1, 1, 250);
+                txtPhoneNumber = itemPosition(gbc, inputBookInformationPanel, "Telephone:", 2, 1, 3, 1, 250);
 
                 JPanel datePanel = new JPanel(new GridBagLayout());
                 GridBagConstraints gbcDate = new GridBagConstraints();
-                date(datePanel, gbcDate, "Date of Birth:", 0, 0);
+                date(datePanel, gbcDate, "Date of Birth:");
                 gbc.gridx = 0;
                 gbc.gridy = 2;
                 gbc.gridwidth = 4;
@@ -329,18 +333,18 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                     }else if(FemaleCheckBox.isSelected()){
                         gender = "Female";
                     }
-                    Date dateOfBirth = Date.valueOf(Objects.requireNonNull(getSelectedDate()));
-                    String phoneNumber = txtPhoneNumber.getText();
-                    if (gender.isEmpty() || name.isEmpty() || phoneNumber.isEmpty()) {
+                    Date birthday = Date.valueOf(Objects.requireNonNull(getSelectedDate()));
+                    String phone_number = txtPhoneNumber.getText();
+                    if (gender.isEmpty() || name.isEmpty() || phone_number.isEmpty()) {
                         JOptionPane.showMessageDialog(null,"Please fill in all fields");
                     } else {
                         try{
                             connection = DriverManager.getConnection(url, user, password);
-                            preparedStatement = connection.prepareStatement("INSERT INTO tbl_employee_records(name, gender, phoneNumber, dateOfBirth) VALUES (?, ?, ?, ?)");
+                            preparedStatement = connection.prepareStatement("INSERT INTO tbl_Employee_Records(name, gender, phone_number, birthday) VALUES (?, ?, ?, ?)");
                             preparedStatement.setString(1, name);
                             preparedStatement.setString(2, gender);
-                            preparedStatement.setString(3, phoneNumber);
-                            preparedStatement.setDate(4, dateOfBirth);
+                            preparedStatement.setString(3, phone_number);
+                            preparedStatement.setDate(4, birthday);
                             preparedStatement.executeUpdate();
                         }catch (SQLException ex){
                             throw new RuntimeException(ex);
@@ -350,14 +354,14 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                                     preparedStatement.close();
                                 }
                             } catch (SQLException e2) {
-                                e2.printStackTrace();
+                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
                             try {
                                 if (connection != null) {
                                     connection.close();
                                 }
                             } catch (SQLException e2) {
-                                e2.printStackTrace();
+                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
                         }
                         updateEmployeeRecordTable();
@@ -378,8 +382,9 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
 
         }
     }
-    private JTextField itemPosition(GridBagConstraints gbc, JPanel panel, String name, int labelX, int labelY , JTextField textField, int textFieldX, int textFieldY){
+    public JTextField itemPosition(GridBagConstraints gbc, JPanel panel, String name, int labelX, int labelY , int textFieldX, int textFieldY, int width){
         JLabel label = new JLabel(name);
+        JTextField textField;
         textField = new JTextField();
         label.setFont(new Font("", Font.PLAIN, 14));
         gbc.gridx = labelX;
@@ -387,13 +392,14 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         panel.add(label, gbc);
         gbc.gridx = textFieldX;
         gbc.gridy = textFieldY;
-        textField.setPreferredSize(new Dimension(250, 30));
+        textField.setPreferredSize(new Dimension(width, 30));
         panel.add(textField, gbc);
         return textField;
     }
-    private JCheckBox itemPosition(JPanel panel, String name, JCheckBox checkBox){
-        checkBox = new JCheckBox(name);
+    private JCheckBox itemPosition(JPanel panel, String name){
+        JCheckBox checkBox = new JCheckBox(name);
         checkBox.setFont(new Font("", Font.PLAIN, 14));
+        checkBox.setBorder(new EmptyBorder(0,0,0,20));
         panel.add(checkBox);
         return checkBox;
     }
@@ -405,7 +411,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
             MaleCheckBox.setSelected(false);
         }
     }
-    public void date(JPanel panel, GridBagConstraints gbc, String labelName, int x, int y) {
+    public void date(JPanel panel, GridBagConstraints gbc, String labelName) {
         String[] days = IntStream.rangeClosed(0, 31).mapToObj(Integer::toString).toArray(String[]::new);
         days[0] = "Select";
         String[] months = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
@@ -426,6 +432,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         JLabel Name = new JLabel(labelName);
         gbc.insets = new Insets(10, 5, 10, 10);
         Name.setFont(new Font("", Font.PLAIN, 14));
+        int x = 0, y = 0;
         gbc.gridx = x;
         gbc.gridy = y;
         panel.add(Name, gbc);
@@ -485,7 +492,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         try {
             connection = DriverManager.getConnection(url, user, password);
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM tbl_book_records");
+            resultSet = statement.executeQuery("SELECT * FROM tbl_Book_Records");
             while (resultSet.next()){
                 int id = resultSet.getInt("book_id");
                 String title = resultSet.getString("title");
@@ -503,7 +510,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                LOGGER.log(Level.SEVERE, "An error occurred", ex);
             }
         }
     }
@@ -513,14 +520,14 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
         try{
             connection = DriverManager.getConnection(url, user, password);
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM tbl_employee_records");
+            resultSet = statement.executeQuery("SELECT * FROM tbl_Employee_Records");
             while (resultSet.next()){
                 int id = resultSet.getInt("employee_id");
                 String name = resultSet.getString("name");
                 String gender = resultSet.getString("gender");
-                String phoneNumber = resultSet.getString("phoneNumber");
-                LocalDate dateOfBirth = resultSet.getDate("dateOfBirth").toLocalDate();
-                model.addRow(new Object[]{id, name, gender, phoneNumber, dateOfBirth});
+                String phone_number = resultSet.getString("phone_number");
+                LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
+                model.addRow(new Object[]{id, name, gender, phone_number, birthday});
             }
         }catch (SQLException e){
             throw new RuntimeException(e);
@@ -531,7 +538,7 @@ public final class adminPage extends JFrame implements ActionListener, ItemListe
                 if (statement != null) statement.close();
                 if (connection != null) connection.close();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                LOGGER.log(Level.SEVERE, "An error occurred", ex);
             }
         }
     }

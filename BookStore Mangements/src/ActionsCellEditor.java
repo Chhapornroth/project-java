@@ -15,19 +15,18 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
     private final JMenuItem deleteItem;
     private int valueOfPrimaryKey;
     private JTable table;
-    private final adminPage adminPageInstance;
-    String url = "jdbc:mariadb://localhost:3306/bookstoremanagements";
+    private final AdminPage adminPageInstance;
+    String url = "jdbc:mariadb://localhost:3306/Bookstore Managements";
     String user = "root";
     String password = "";
     Connection conn;
     Statement stmt;
 
-    public ActionsCellEditor(JTable table, adminPage adminPageInstance) {
+    public ActionsCellEditor(JTable table, AdminPage adminPageInstance) {
         panel = new JPanel(new BorderLayout());
-        button = new JButton("---");
+        button = new JButton("⁝");
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setRolloverEnabled(false);
         panel.add(button, BorderLayout.CENTER);
 
         popupMenu = new JPopupMenu();
@@ -74,8 +73,7 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
         if (e.getSource() == button) {
             popupMenu.show(button, button.getWidth(), button.getHeight());
         } else if (e.getSource() == editItem) {
-            System.out.println("Edit action triggered for row: " + valueOfPrimaryKey);
-
+            new EditWindow(adminPageInstance);
         } else if (e.getSource() == deleteItem) {
             try {
                 conn = DriverManager.getConnection(url, user, password);
@@ -87,8 +85,16 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
                 throw new RuntimeException(ex);
             }finally{
                 try {
-                    stmt.close();
-                    conn.close();
+                    if(stmt != null){
+                        stmt.close();
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    if(conn != null){
+                        conn.close();
+                    }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }

@@ -1,9 +1,6 @@
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -23,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Y.CHHAPORNROTH
  */
-public class AdminPage extends JFrame implements ActionListener, ItemListener{
+public class AdminPage extends JFrame implements ActionListener, ItemListener, FocusListener {
     private static final Logger LOGGER = Logger.getLogger(AdminPage.class.getName());
     private final JPanel centerPanel = new JPanel();
     private final JPanel leftPanel = new JPanel();
@@ -32,11 +29,11 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
     private final JPanel inputBookInformationPanel = new JPanel(new GridBagLayout());
     private JTextField txtEmployeeId, txtEmployeeName, txtPhoneNumber;
     private JCheckBox MaleCheckBox, FemaleCheckBox;
-    private JTextField txtBookId, txtTitle, txtAuthor, txtStock;
+    private JTextField txtBookId, txtTitle, txtAuthor, txtStock, searchTextField;
     private JComboBox<String> dayComboBox, monthComboBox, yearComboBox;
     JTable bookRecordsTable;
     JTable employeeRecordsTable;
-    String url = "jdbc:mariadb://localhost:3306/Bookstore Managements";
+    String url = "jdbc:mariadb://localhost:3306/Bookstore_Management";
     String user = "root";
     String password = "";
     Connection connection;
@@ -70,14 +67,14 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         topLeftPanel.setLayout(new BorderLayout());
         topLeftPanel.setBorder(new CompoundBorder(new TitledBorder(""),new EmptyBorder(20,0,0,0)));
         gbc.weightx = 1;
-        gbc.weighty = 0.5/3.0;
+        gbc.weighty = 0.4/3.0;
         gbc.gridx = 0;
         gbc.gridy = 0;
         leftPanel.add(topLeftPanel, gbc);
 
         //add admin icon
-        ImageIcon img = new ImageIcon("D:\\Java\\project-java\\icon\\Admin.png");
-        Image image = img.getImage().getScaledInstance(100, 100,Image.SCALE_SMOOTH);
+        ImageIcon img = new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1.png");
+        Image image = img.getImage().getScaledInstance(150, 150,Image.SCALE_SMOOTH);
         ImageIcon iconImage = new ImageIcon(image);
         JLabel adminIcon = new JLabel(iconImage);
         topLeftPanel.add(adminIcon,BorderLayout.NORTH);
@@ -158,9 +155,18 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         centerPanel.add(inputBookInformationPanel,gbcCenterPanel);
         /*----- the top of the center panel -----*/
 
-        /*----- the bottom of the center panel -----*/
-        gbcCenterPanel.weighty = 5.0/6.0;
+        /*----- the center of the center panel -----*/
         gbcCenterPanel.gridy = 1;
+        gbcCenterPanel.insets = new Insets(5, 0, 5 , 0);
+        searchTextField = new JTextField("Search");
+        searchTextField.setFont(new Font("Arial", Font.PLAIN, 13));
+        centerPanel.add(searchTextField, gbcCenterPanel);
+        searchTextField.addFocusListener(this);
+        /*----- the center of the center panel -----*/
+
+        /*----- the bottom of the center panel -----*/
+        gbcCenterPanel.weighty = 4.0/6.0;
+        gbcCenterPanel.gridy = 2;
         if(namePanel.equals("BOOK RECORDS")){
             String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date", "Actions"};
             DefaultTableModel bookRecordsModel = new DefaultTableModel(bookRecordsColumn, 0);
@@ -171,7 +177,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
             bookRecordsTable.setRowHeight(20);
             bookRecordsTable.getColumnModel().getColumn(5).setMaxWidth(50);
             bookRecordsTable.getColumnModel().getColumn(5).setCellRenderer(new ActionsCellRenderer());
-            bookRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(bookRecordsTable, this));
+            bookRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(bookRecordsTable, this, "BOOK RECORDS"));
             updateBookRecordTable(bookRecordsTable);
         }else if(namePanel.equals("EMPLOYEE RECORDS")){
             String[] columnNames = {"ID", "Full Name", "Gender", "Phone Number", "Date of Birth", "Actions"};
@@ -182,7 +188,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
             centerPanel.add(scrollPane, gbcCenterPanel);
             employeeRecordsTable.getColumnModel().getColumn(5).setMaxWidth(50);
             employeeRecordsTable.getColumnModel().getColumn(5).setCellRenderer(new ActionsCellRenderer());
-            employeeRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(employeeRecordsTable, this));
+            employeeRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(employeeRecordsTable, this, "EMPLOYEE RECORDS"));
             updateEmployeeRecordTable();
         }
         /*----- the bottom of the center panel -----*/
@@ -201,6 +207,27 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         switch(command){
             case "Home" ->{
                 clearPanel();
+                JPanel homePanel = new JPanel(new GridBagLayout());
+                GridBagConstraints gbc  = new GridBagConstraints();
+                centerPanel.add(homePanel);
+                JButton rightHomePanel = new JButton("RIGHT");
+                JButton middleHomePanel = new JButton("MIDDLE");
+                JButton leftHomePanel = new JButton("LEFT");
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                gbc.weightx = 1.0;
+                homePanel.add(rightHomePanel, gbc);
+                gbc.gridx = 1;
+                gbc.weightx = 1.0;
+                homePanel.add(middleHomePanel, gbc);
+                gbc.gridx = 2;
+                gbc.weightx = 1.0;
+                homePanel.add(leftHomePanel, gbc);
+                JPanel emptyPanel = new JPanel();
+                gbc.gridx = 0;
+                gbc.gridy = 1;
+                gbc.gridwidth = 3;
+                homePanel.add(emptyPanel, gbc);
             }
             case "Book Records" ->{
                 clearPanel();
@@ -278,9 +305,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
                         txtAuthor.setText("");
                         txtTitle.setText("");
                         txtStock.setText("");
-                        dayComboBox.setSelectedIndex(0);
-                        monthComboBox.setSelectedIndex(0);
-                        yearComboBox.setSelectedIndex(0);
+                        setSelectedDate("Select", "Select", "Select");
                     }
                 });
             }
@@ -370,9 +395,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
                         FemaleCheckBox.setSelected(false);
                         txtEmployeeName.setText("");
                         txtPhoneNumber.setText("");
-                        dayComboBox.setSelectedIndex(0);
-                        monthComboBox.setSelectedIndex(0);
-                        yearComboBox.setSelectedIndex(0);
+                        setSelectedDate("Select", "Select", "Select");
                     }
                 });
             }
@@ -396,7 +419,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         panel.add(textField, gbc);
         return textField;
     }
-    private JCheckBox itemPosition(JPanel panel, String name){
+    public JCheckBox itemPosition(JPanel panel, String name){
         JCheckBox checkBox = new JCheckBox(name);
         checkBox.setFont(new Font("", Font.PLAIN, 14));
         checkBox.setBorder(new EmptyBorder(0,0,0,20));
@@ -415,15 +438,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         String[] days = IntStream.rangeClosed(0, 31).mapToObj(Integer::toString).toArray(String[]::new);
         days[0] = "Select";
         String[] months = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-        int sy = 0, fy = 0;
-        if (labelName.equals("Adding Date:")){
-            sy = 2023;
-            fy = 2030;
-        } else if(labelName.equals("Date of Birth:")){
-            sy = 1974;
-            fy = 2024;
-        }
-        String[] years = IntStream.rangeClosed(sy, fy).mapToObj(Integer::toString).toArray(String[]::new);
+        String[] years = IntStream.rangeClosed(1989, 2030).mapToObj(Integer::toString).toArray(String[]::new);
         years[0] = "Select";
         dayComboBox = new JComboBox<>(days);
         monthComboBox = new JComboBox<>(months);
@@ -448,7 +463,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         gbc.gridx = gridx + 1;
         panel.add(comboBox, gbc);
     }
-    private LocalDate getSelectedDate() {
+    public LocalDate getSelectedDate() {
         String dayStr = (String) dayComboBox.getSelectedItem();
         String monthStr = (String) monthComboBox.getSelectedItem();
         String yearStr = (String) yearComboBox.getSelectedItem();
@@ -485,7 +500,11 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
         }
         return month;
     }
-
+    public void setSelectedDate(String d, String m, String y){
+        dayComboBox.setSelectedItem(d);
+        monthComboBox.setSelectedItem(m);
+        yearComboBox.setSelectedItem(y);
+    }
     public void updateBookRecordTable(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
@@ -514,7 +533,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
             }
         }
     }
-    private void updateEmployeeRecordTable() {
+    public void updateEmployeeRecordTable() {
         DefaultTableModel model = (DefaultTableModel) employeeRecordsTable.getModel();
         model.setRowCount(0); // Clear the table
         try{
@@ -540,6 +559,18 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener{
             } catch (SQLException ex) {
                 LOGGER.log(Level.SEVERE, "An error occurred", ex);
             }
+        }
+    }
+    @Override
+    public void focusGained(FocusEvent e) {
+        if (searchTextField.getText().equals("Search")){
+            searchTextField.setText("");
+        }
+    }
+    @Override
+    public void focusLost(FocusEvent e) {
+        if (searchTextField.getText().isEmpty()){
+            searchTextField.setText("Search");
         }
     }
 }

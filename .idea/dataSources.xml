@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="bookstoremanagements@localhost" uuid="3fef12f6-414a-4d71-afd7-0532c3cc63ea">
+    <data-source source="LOCAL" name="bookstore_management@localhost" uuid="e4b3d99c-2eec-4929-bb54-b8168e00e5c6">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://localhost:3306/bookstoremanagements</jdbc-url>
+      <jdbc-url>jdbc:mariadb://localhost:3306/bookstore_management</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

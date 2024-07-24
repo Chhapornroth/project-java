@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/BookStore Mangements/src/ActionsCellEditor.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/BookStore Mangements/src/AdminPage.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/BookStore Mangements/src/EditWindow.java" dialect="MariaDB" />
   </component>
 </project>

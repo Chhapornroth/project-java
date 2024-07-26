@@ -20,19 +20,21 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Y.CHHAPORNROTH
  */
-public class AdminPage extends JFrame implements ActionListener, ItemListener, FocusListener {
+public class AdminPage extends JFrame implements ActionListener, ItemListener, FocusListener{
     private static final Logger LOGGER = Logger.getLogger(AdminPage.class.getName());
     private final JPanel centerPanel = new JPanel();
     private final JPanel leftPanel = new JPanel();
     private final JPanel topLeftPanel = new JPanel();
     private final JPanel bottomLeftPanel = new JPanel();
     private final JPanel inputBookInformationPanel = new JPanel(new GridBagLayout());
+    private JButton bookRecordButton, employeeRecords, saleRecords;
     private JTextField txtEmployeeId, txtEmployeeName, txtPhoneNumber;
     private JCheckBox MaleCheckBox, FemaleCheckBox;
     private JTextField txtBookId, txtTitle, txtAuthor, txtStock, searchTextField;
     private JComboBox<String> dayComboBox, monthComboBox, yearComboBox;
     JTable bookRecordsTable;
     JTable employeeRecordsTable;
+    JTable saleRecordsTable;
     String url = "jdbc:mariadb://localhost:3306/Bookstore_Management";
     String user = "root";
     String password = "";
@@ -43,17 +45,15 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
 
     public AdminPage(){
         setTitle("Admin Page");
-        setSize(1250, 800);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(1250, 800));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
         leftPanel();
         add(leftPanel, BorderLayout.WEST);
-
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, centerPanel);
-        splitPane.setResizeWeight(0.12); // Set the initial split ratio to 12% for the left panel
-        add(splitPane, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
         setVisible(true);
     }
     public void leftPanel() {
@@ -65,7 +65,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
     }
     public void topLeftPanel(GridBagConstraints gbc) {
         topLeftPanel.setLayout(new BorderLayout());
-        topLeftPanel.setBorder(new CompoundBorder(new TitledBorder(""),new EmptyBorder(20,0,0,0)));
+        topLeftPanel.setBorder(new CompoundBorder(new TitledBorder(""),new EmptyBorder(20,40,0,40)));
         gbc.weightx = 1;
         gbc.weighty = 0.4/3.0;
         gbc.gridx = 0;
@@ -74,7 +74,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
 
         //add admin icon
         ImageIcon img = new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1.png");
-        Image image = img.getImage().getScaledInstance(150, 150,Image.SCALE_SMOOTH);
+        Image image = img.getImage().getScaledInstance(200, 200,Image.SCALE_SMOOTH);
         ImageIcon iconImage = new ImageIcon(image);
         JLabel adminIcon = new JLabel(iconImage);
         topLeftPanel.add(adminIcon,BorderLayout.NORTH);
@@ -108,9 +108,11 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
 
         //Button
         JButton homeButton = buttonInit(option, gbcInOptionPanel, "Home", 19, 0, 12);
-        JButton bookRecordButton = buttonInit(option, gbcInOptionPanel, "Book Records", 22, 1, 10);
-        JButton employeeRecords = buttonInit(option, gbcInOptionPanel, "Employee Records", 25, 2, 7);
-        JButton saleRecords = buttonInit(option, gbcInOptionPanel, "Sale Records", 23, 3, 9);
+        bookRecordButton = buttonInit(option, gbcInOptionPanel, "Book Records", 22, 1, 10);
+        employeeRecords = buttonInit(option, gbcInOptionPanel, "Employee Records", 25, 2, 7);
+        saleRecords = buttonInit(option, gbcInOptionPanel, "Sale Records", 23, 3, 9);
+
+        SwingUtilities.invokeLater(homeButton::doClick);
 
         //this panel is here because we want to make a big gap or space below saleRecords Button
         gbcInOptionPanel.gridy = 4;
@@ -207,27 +209,38 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         switch(command){
             case "Home" ->{
                 clearPanel();
-                JPanel homePanel = new JPanel(new GridBagLayout());
-                GridBagConstraints gbc  = new GridBagConstraints();
-                centerPanel.add(homePanel);
-                JButton rightHomePanel = new JButton("RIGHT");
-                JButton middleHomePanel = new JButton("MIDDLE");
-                JButton leftHomePanel = new JButton("LEFT");
-                gbc.gridx = 0;
-                gbc.gridy = 0;
-                gbc.weightx = 1.0;
-                homePanel.add(rightHomePanel, gbc);
-                gbc.gridx = 1;
-                gbc.weightx = 1.0;
-                homePanel.add(middleHomePanel, gbc);
-                gbc.gridx = 2;
-                gbc.weightx = 1.0;
-                homePanel.add(leftHomePanel, gbc);
-                JPanel emptyPanel = new JPanel();
-                gbc.gridx = 0;
-                gbc.gridy = 1;
-                gbc.gridwidth = 3;
-                homePanel.add(emptyPanel, gbc);
+                centerPanel.setBorder(new CompoundBorder(new TitledBorder("HOME DASHBOARD"),new EmptyBorder(0,8,0,8)));
+                centerPanel.setLayout(new BorderLayout());
+
+                JPanel topHomePanel = new JPanel(new GridLayout());
+                GridLayout gl = new GridLayout();
+                topHomePanel.setLayout(gl);
+                gl.setHgap(10);
+                gl.setVgap(10);
+                RoundedPanel rp1 = homePanelInformation(topHomePanel, 50, 194, 214, "book records", "Book Stock");
+                RoundedPanel rp2 = homePanelInformation(topHomePanel, 181, 211, 145, "guy", "Employees");
+                RoundedPanel rp3 = homePanelInformation(topHomePanel, 251, 221, 92, "Customer", "Transactions");
+                MouseListener mouseListener = new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if(e.getSource() == rp1){
+                            SwingUtilities.invokeLater(bookRecordButton::doClick);
+                        }else if(e.getSource() == rp2){
+                            SwingUtilities.invokeLater(employeeRecords::doClick);
+                        }else if(e.getSource() == rp3){
+                            SwingUtilities.invokeLater(saleRecords::doClick);
+                        }
+                    }
+                };
+                rp1.addMouseListener(mouseListener);
+                rp1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                rp2.addMouseListener(mouseListener);
+                rp2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                rp3.addMouseListener(mouseListener);
+                rp3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                centerPanel.add(topHomePanel, BorderLayout.NORTH);
+                JPanel bottomHomePanel = new JPanel();
+                centerPanel.add(bottomHomePanel, BorderLayout.SOUTH);
             }
             case "Book Records" ->{
                 clearPanel();
@@ -286,16 +299,8 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                             throw new RuntimeException(ex);
                         }finally {
                             try {
-                                if (preparedStatement != null) {
-                                    preparedStatement.close();
-                                }
-                            } catch (SQLException e2) {
-                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
-                            }
-                            try {
-                                if (connection != null) {
-                                    connection.close();
-                                }
+                                if (preparedStatement != null) preparedStatement.close();
+                                if (connection != null) connection.close();
                             } catch (SQLException e2) {
                                 LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
@@ -375,16 +380,8 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                             throw new RuntimeException(ex);
                         }finally {
                             try {
-                                if (preparedStatement != null) {
-                                    preparedStatement.close();
-                                }
-                            } catch (SQLException e2) {
-                                LOGGER.log(Level.SEVERE, "An error occurred", e2);
-                            }
-                            try {
-                                if (connection != null) {
-                                    connection.close();
-                                }
+                                if (preparedStatement != null) preparedStatement.close();
+                                if (connection != null) connection.close();
                             } catch (SQLException e2) {
                                 LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
@@ -400,10 +397,77 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 });
             }
             case "Sale Records" ->{
-
+                clearPanel();
+                centerPanel.setBorder(new CompoundBorder(new TitledBorder("TRANSACTIONS RECORDS"),new EmptyBorder(0,8,0,8)));
             }
-
         }
+    }
+    private RoundedPanel homePanelInformation(JPanel panel, int R, int G, int B, String imgName, String labelName1){
+        RoundedPanel informationPanel = new RoundedPanel(20);
+        informationPanel.setBackground(new Color(R, G, B));
+        informationPanel.setPreferredSize(new Dimension(0, 240));
+        informationPanel.setLayout(new BorderLayout());
+        informationPanel.setBorder(new EmptyBorder(0, 20, 0, 0));
+
+        ImageIcon img = new ImageIcon("D:\\Java\\project-java\\icon\\"+ imgName +"-icon.png");
+        Image image = img.getImage().getScaledInstance(175, 175,Image.SCALE_SMOOTH);
+        ImageIcon iconImage = new ImageIcon(image);
+        JLabel adminIcon = new JLabel(iconImage);
+        informationPanel.add(adminIcon, BorderLayout.EAST);
+
+        JPanel leftOfLeftHomePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        leftOfLeftHomePanel.setOpaque(false);
+
+        JLabel informationLabelStr = new JLabel("Total");
+        informationLabelStr.setFont(new Font("Arial", Font.BOLD, 30));
+        informationLabelStr.setForeground(Color.WHITE);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        leftOfLeftHomePanel.add(informationLabelStr, gbc);
+
+        JLabel informationLabelStr1 = new JLabel(labelName1);
+        informationLabelStr1.setFont(new Font("Arial", Font.BOLD, 27));
+        informationLabelStr1.setForeground(Color.WHITE);
+        gbc.gridy = 1;
+        leftOfLeftHomePanel.add(informationLabelStr1, gbc);
+
+        String amount = "0";
+        try{
+            connection = DriverManager.getConnection(url, user, password);
+            String sql = switch (labelName1) {
+                case "Book Stock" -> "SELECT SUM(stock) AS Col_Name FROM tbl_Book_Records";
+                case "Employees" -> "SELECT COUNT(name) AS Col_Name FROM tbl_Employee_Records";
+                case "Transactions" -> "SELECT COUNT(*) AS Col_Name FROM tbl_Transactions_Records";
+                default -> "";
+            };
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            if (resultSet.next()) {
+                int amountInt = resultSet.getInt("Col_Name");
+                amount = String.valueOf(amountInt);
+            }
+        }catch(SQLException e){
+            LOGGER.log(Level.SEVERE, "An error occurred", e);
+        }finally {
+            try{
+                if (connection != null) connection.close();
+            }catch(SQLException e){
+                LOGGER.log(Level.SEVERE, "An error occurred", e);
+            }
+        }
+
+        JLabel informationLabelInt = new JLabel(amount);
+        informationLabelInt.setFont(new Font("Arial", Font.BOLD, 40));
+        informationLabelInt.setForeground(Color.WHITE);
+        gbc.gridy = 2;
+        leftOfLeftHomePanel.add(informationLabelInt, gbc);
+
+        informationPanel.add(leftOfLeftHomePanel, BorderLayout.CENTER);
+        panel.add(informationPanel);
+
+        return informationPanel;
     }
     public JTextField itemPosition(GridBagConstraints gbc, JPanel panel, String name, int labelX, int labelY , int textFieldX, int textFieldY, int width){
         JLabel label = new JLabel(name);
@@ -547,6 +611,34 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 String phone_number = resultSet.getString("phone_number");
                 LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
                 model.addRow(new Object[]{id, name, gender, phone_number, birthday});
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+        finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException ex) {
+                LOGGER.log(Level.SEVERE, "An error occurred", ex);
+            }
+        }
+    }
+    public void updateSaleRecordTable() {
+        DefaultTableModel model = (DefaultTableModel) saleRecordsTable.getModel();
+        model.setRowCount(0); // Clear the table
+        try{
+            connection = DriverManager.getConnection(url, user, password);
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM tbl_Transactions_Records");
+            while (resultSet.next()){
+                int txn_id = resultSet.getInt("txn_id");
+                String cust_name = resultSet.getString("cust_name");
+                int book_id = resultSet.getInt("book_id");
+                String employee_id = resultSet.getString("employee_id");
+                LocalDate birthday = resultSet.getDate("price").toLocalDate();
+                model.addRow(new Object[]{txn_id, cust_name, book_id, employee_id, birthday});
             }
         }catch (SQLException e){
             throw new RuntimeException(e);

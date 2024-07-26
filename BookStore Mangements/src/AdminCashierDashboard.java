@@ -35,7 +35,7 @@ public class AdminCashierDashboard extends JFrame{
         });
         
         // Resize icons
-        adminButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\Admin.png"), 50, 40));
+        adminButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1 .png"), 50, 40));
         cashierButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\cashier.png"), 60, 50));
 
         // Set button size

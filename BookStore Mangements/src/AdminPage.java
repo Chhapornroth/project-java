@@ -10,6 +10,8 @@ import java.util.stream.IntStream;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /*
  * Click infos://hoist/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -30,12 +32,14 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
     private JButton bookRecordButton, employeeRecords, saleRecords;
     private JTextField txtEmployeeId, txtEmployeeName, txtPhoneNumber;
     private JCheckBox MaleCheckBox, FemaleCheckBox;
-    private JTextField txtBookId, txtTitle, txtAuthor, txtStock, searchTextField;
+    private JTextField txtBookId, txtTitle, txtAuthor, txtStock;
     private JComboBox<String> dayComboBox, monthComboBox, yearComboBox;
+    private JTextField searchTextField;
+    private String clickWhichButton;
     JTable bookRecordsTable;
     JTable employeeRecordsTable;
     JTable saleRecordsTable;
-    String url = "jdbc:mariadb://localhost:3306/Bookstore_Management";
+    String url = "jdbc:mariadb://localhost:3306/Bookstore_Managements";
     String user = "root";
     String password = "";
     Connection connection;
@@ -44,7 +48,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
     ResultSet resultSet;
 
     public AdminPage(){
-        setTitle("Admin Page");
+        setTitle("ADMINISTRATOR!!!");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(1250, 800));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,7 +77,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         leftPanel.add(topLeftPanel, gbc);
 
         //add admin icon
-        ImageIcon img = new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1.png");
+        ImageIcon   img = new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1.png");
         Image image = img.getImage().getScaledInstance(200, 200,Image.SCALE_SMOOTH);
         ImageIcon iconImage = new ImageIcon(image);
         JLabel adminIcon = new JLabel(iconImage);
@@ -171,29 +175,35 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         gbcCenterPanel.gridy = 2;
         if(namePanel.equals("BOOK RECORDS")){
             String[] bookRecordsColumn = {"ID", "Title", "Author's Name", "Stock", "Adding Date", "Actions"};
-            DefaultTableModel bookRecordsModel = new DefaultTableModel(bookRecordsColumn, 0);
-            bookRecordsTable = new JTable(bookRecordsModel);
-            bookRecordsTable.getTableHeader().setReorderingAllowed(false);
-            JScrollPane scrollPane = new JScrollPane(bookRecordsTable);
-            centerPanel.add(scrollPane, gbcCenterPanel);
-            bookRecordsTable.setRowHeight(20);
-            bookRecordsTable.getColumnModel().getColumn(5).setMaxWidth(50);
-            bookRecordsTable.getColumnModel().getColumn(5).setCellRenderer(new ActionsCellRenderer());
-            bookRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(bookRecordsTable, this, "BOOK RECORDS"));
-            updateBookRecordTable(bookRecordsTable);
+            bookRecordsTable = initializedTable(bookRecordsColumn, gbcCenterPanel, "BOOK RECORDS");
+            updateBookRecordTable();
+            txtBookId = new JTextField();
+            txtBookId.setText(lastRowValue("BOOK"));
         }else if(namePanel.equals("EMPLOYEE RECORDS")){
-            String[] columnNames = {"ID", "Full Name", "Gender", "Phone Number", "Date of Birth", "Actions"};
-            DefaultTableModel employeeRecordsModel = new DefaultTableModel(columnNames, 0);
-            employeeRecordsTable = new JTable(employeeRecordsModel);
-            employeeRecordsTable.getTableHeader().setReorderingAllowed(false);
-            JScrollPane scrollPane = new JScrollPane(employeeRecordsTable);
-            centerPanel.add(scrollPane, gbcCenterPanel);
-            employeeRecordsTable.getColumnModel().getColumn(5).setMaxWidth(50);
-            employeeRecordsTable.getColumnModel().getColumn(5).setCellRenderer(new ActionsCellRenderer());
-            employeeRecordsTable.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(employeeRecordsTable, this, "EMPLOYEE RECORDS"));
+            String[] employeeRecordsColumn = {"ID", "Full Name", "Gender", "Phone Number", "Date of Birth", "Actions"};
+            employeeRecordsTable = initializedTable(employeeRecordsColumn, gbcCenterPanel, "EMPLOYEE RECORDS");
             updateEmployeeRecordTable();
+            txtEmployeeId = new JTextField();
+            txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
         }
         /*----- the bottom of the center panel -----*/
+    }
+    private JTable initializedTable(String[] columnNames, GridBagConstraints gbc, String buttonName){
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0){
+            public boolean isCellEditable(int row, int column) {
+                return column == 5;
+            }
+        };
+        JTable table = new JTable(model);
+        table.getTableHeader().setReorderingAllowed(false);
+        JScrollPane scrollPane = new JScrollPane(table);
+        centerPanel.add(scrollPane, gbc);
+        table.getColumnModel().getColumn(0).setMaxWidth(150);
+        table.getColumnModel().getColumn(1).setMinWidth(240);
+        table.getColumnModel().getColumn(5).setMaxWidth(50);
+        table.getColumnModel().getColumn(5).setCellRenderer(new ActionsCellRenderer());
+        table.getColumnModel().getColumn(5).setCellEditor(new ActionsCellEditor(table, this, buttonName));
+        return table;
     }
     private void clearPanel(){
         centerPanel.removeAll();
@@ -243,12 +253,15 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 centerPanel.add(bottomHomePanel, BorderLayout.SOUTH);
             }
             case "Book Records" ->{
+                clickWhichButton = "Book Records";
                 clearPanel();
                 centerRightPanel("BOOK RECORDS", "ADDING BOOK INFORMATION");
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 gbc.insets = new Insets(0, 10, 10, 10);
                 txtBookId = itemPosition(gbc, inputBookInformationPanel, "Book ID: ", 0, 0, 1, 0, 250);
+                txtBookId.setEnabled(false);
+                txtBookId.setText(lastRowValue("BOOK"));
                 txtAuthor = itemPosition(gbc, inputBookInformationPanel, "Author Name:", 2, 0, 3, 0, 250);
 
                 gbc.insets = new Insets(10, 10, 0, 10);
@@ -305,8 +318,8 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                                 LOGGER.log(Level.SEVERE, "An error occurred", e2);
                             }
                         }
-                        updateBookRecordTable(bookRecordsTable);
-                        txtBookId.setText("");
+                        updateBookRecordTable();
+                        txtBookId.setText(lastRowValue("BOOK"));
                         txtAuthor.setText("");
                         txtTitle.setText("");
                         txtStock.setText("");
@@ -315,12 +328,15 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 });
             }
             case "Employee Records" ->{
+                clickWhichButton = "Employee Records";
                 clearPanel();
                 centerRightPanel("EMPLOYEE RECORDS", "ADDING EMPLOYEE INFORMATION");
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 gbc.insets = new Insets(0, 10, 10, 10);
                 txtEmployeeId = itemPosition(gbc, inputBookInformationPanel, "Employee ID:", 0, 0, 1, 0, 250);
+                txtEmployeeId.setEnabled(false);
+                txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
                 gbc.gridx = 2;
                 JLabel checkLabel = new JLabel("Gender: ");
                 checkLabel.setFont(new Font("", Font.PLAIN, 14));
@@ -387,7 +403,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                             }
                         }
                         updateEmployeeRecordTable();
-                        txtEmployeeId.setText("");
+                        txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
                         MaleCheckBox.setSelected(false);
                         FemaleCheckBox.setSelected(false);
                         txtEmployeeName.setText("");
@@ -397,13 +413,64 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 });
             }
             case "Sale Records" ->{
+                clickWhichButton = "Sale Records";
                 clearPanel();
-                centerPanel.setBorder(new CompoundBorder(new TitledBorder("TRANSACTIONS RECORDS"),new EmptyBorder(0,8,0,8)));
+                centerPanel.setLayout(new BorderLayout());
+                centerPanel.setBorder(new CompoundBorder(new TitledBorder("TRANSACTIONS RECORDS"),new EmptyBorder(0,8,9,8)));
+                searchTextField = new JTextField("Search");
+                searchTextField.setFont(new Font("Arial", Font.PLAIN, 13));
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBorder(new EmptyBorder(0, 0, 10, 0));
+                panel.add(searchTextField, BorderLayout.CENTER);
+                centerPanel.add(panel, BorderLayout.NORTH);
+                searchTextField.addFocusListener(this);
+                String[] salesRecordsColumn = {"TXN ID", "Customer Name", "Book_ID", "Employee ID", "Price", "Quantity", "Discount", "Total Amount", "Date", "Action"};
+                DefaultTableModel salesRecordsModel = new DefaultTableModel(salesRecordsColumn, 0){
+                    public boolean isCellEditable(int row, int column){
+                        return column == 9;
+                    }
+                };
+                saleRecordsTable = new JTable(salesRecordsModel);
+                saleRecordsTable.getTableHeader().setReorderingAllowed(false);
+                saleRecordsTable.getColumnModel().getColumn(9).setMaxWidth(50);
+                saleRecordsTable.getColumnModel().getColumn(9).setCellRenderer(new ActionsCellRenderer());
+                saleRecordsTable.getColumnModel().getColumn(9).setCellEditor(new ActionsCellEditor(saleRecordsTable, this, "SALES TRANSACTIONS"));
+                JScrollPane salesRecordsScrollPane = new JScrollPane(saleRecordsTable);
+                centerPanel.add(salesRecordsScrollPane, BorderLayout.CENTER);
+                updateSaleRecordTable();
             }
         }
     }
+    private String lastRowValue (String table){
+        String sql;
+        switch (table) {
+            case "BOOK" -> sql = "SHOW TABLE STATUS LIKE 'tbl_book_records'";
+            case "EMPLOYEE" -> sql = "SHOW TABLE STATUS LIKE 'tbl_employee_records'";
+            default -> sql = "";
+        }
+        int value = 0;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            while (resultSet.next()){
+                value = resultSet.getInt("Auto_increment");
+            }
+        }catch (SQLException ex){
+            LOGGER.log(Level.SEVERE, "An error occurred", ex);
+        }finally {
+            try{
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+            }catch (SQLException ex){
+                LOGGER.log(Level.SEVERE, "An error occurred", ex);
+            }
+        }
+        return String.valueOf(value);
+    }
     private RoundedPanel homePanelInformation(JPanel panel, int R, int G, int B, String imgName, String labelName1){
-        RoundedPanel informationPanel = new RoundedPanel(20);
+        RoundedPanel informationPanel = new RoundedPanel(20, false);
         informationPanel.setBackground(new Color(R, G, B));
         informationPanel.setPreferredSize(new Dimension(0, 240));
         informationPanel.setLayout(new BorderLayout());
@@ -569,8 +636,8 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         monthComboBox.setSelectedItem(m);
         yearComboBox.setSelectedItem(y);
     }
-    public void updateBookRecordTable(JTable table) {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+    public void updateBookRecordTable() {
+        DefaultTableModel model = (DefaultTableModel) bookRecordsTable.getModel();
         model.setRowCount(0);
         try {
             connection = DriverManager.getConnection(url, user, password);
@@ -599,7 +666,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
     }
     public void updateEmployeeRecordTable() {
         DefaultTableModel model = (DefaultTableModel) employeeRecordsTable.getModel();
-        model.setRowCount(0); // Clear the table
+        model.setRowCount(0);
         try{
             connection = DriverManager.getConnection(url, user, password);
             statement = connection.createStatement();
@@ -627,18 +694,22 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
     }
     public void updateSaleRecordTable() {
         DefaultTableModel model = (DefaultTableModel) saleRecordsTable.getModel();
-        model.setRowCount(0); // Clear the table
+        model.setRowCount(0);
         try{
             connection = DriverManager.getConnection(url, user, password);
             statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM tbl_Transactions_Records");
             while (resultSet.next()){
                 int txn_id = resultSet.getInt("txn_id");
-                String cust_name = resultSet.getString("cust_name");
+                String customer_name = resultSet.getString("customer_name");
                 int book_id = resultSet.getInt("book_id");
                 String employee_id = resultSet.getString("employee_id");
-                LocalDate birthday = resultSet.getDate("price").toLocalDate();
-                model.addRow(new Object[]{txn_id, cust_name, book_id, employee_id, birthday});
+                float price = resultSet.getFloat("price");
+                int qty = resultSet.getInt("qty");
+                float discount = resultSet.getFloat("discount");
+                float total = resultSet.getFloat("total");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                model.addRow(new Object[]{txn_id, customer_name, book_id, employee_id, price, qty, discount, total, date});
             }
         }catch (SQLException e){
             throw new RuntimeException(e);
@@ -653,10 +724,30 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
             }
         }
     }
+
     @Override
     public void focusGained(FocusEvent e) {
         if (searchTextField.getText().equals("Search")){
             searchTextField.setText("");
+            JTable table = new JTable();
+            switch (clickWhichButton){
+                case "Book Records" -> table = bookRecordsTable;
+                case "Employee Records" -> table = employeeRecordsTable;
+                case "Sale Records" -> table = saleRecordsTable;
+            }
+            TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(table.getModel());
+            table.setRowSorter(rowSorter);
+            searchTextField.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    String searchText = searchTextField.getText();
+                    if (searchText.trim().isEmpty()) {
+                        rowSorter.setRowFilter(null);
+                    } else {
+                        rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + (searchText)));
+                    }
+                }
+            });
         }
     }
     @Override

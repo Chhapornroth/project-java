@@ -1,6 +1,6 @@
-
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 
 /*
@@ -17,26 +17,26 @@ public class AdminCashierDashboard extends JFrame{
     
     JButton adminButton = new JButton();
     JButton cashierButton=new JButton();
-    Label userLabel = new Label("Determine User Identity: ");
-    Label admin = new Label("Admin");
-    Label cashier=new Label("Cashier");
+    JLabel userLabel = new JLabel("Determine User Identity: ");
+    JLabel admin = new JLabel("Admin");
+    JLabel cashier =new JLabel("Cashier");
     
     public AdminCashierDashboard(){
         super("Admin and Cashier Dashboard");
-        JPanel Panel = new JPanel();
-        
         //add action to Admin Button
         adminButton.addActionListener((ActionEvent e) -> {
-            AdminPage adminPage = new AdminPage();
+            FormLogin formLogin = new FormLogin("Admin");
             dispose();
         });
         //add action to Cashier Button
         cashierButton.addActionListener((ActionEvent e) -> {
+            FormLogin formLogin = new FormLogin("Employee");
+            dispose();
         });
         
         // Resize icons
-        adminButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\Admin-1 .png"), 50, 40));
-        cashierButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\cashier.png"), 60, 50));
+        adminButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\admin.png"), 50));
+        cashierButton.setIcon(resizeIcon(new ImageIcon("D:\\Java\\project-java\\icon\\guy-icon.png"), 50));
 
         // Set button size
         adminButton.setPreferredSize(new Dimension(100, 50));
@@ -50,26 +50,29 @@ public class AdminCashierDashboard extends JFrame{
         setResizable(false);
         
         //Label
-        admin.setBounds(173,90,50,10);
+        admin.setBounds(173,85,50,10);
         admin.setFont(new Font("",Font.BOLD,12));
+//        admin.setForeground(new Color(50, 194, 214));
         add(admin,BorderLayout.CENTER);
-        cashier.setBounds(273,90,50,10);
+        cashier.setBounds(273,85,50,10);
         cashier.setFont(new Font("",Font.BOLD,12));
         add(cashier,BorderLayout.CENTER);
-        Panel.add(adminButton);
-        Panel.add(cashierButton);
-        add(Panel, BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        panel.add(adminButton);
+        panel.add(cashierButton);
+        add(panel, BorderLayout.CENTER);
         
-        userLabel.setAlignment(Label.CENTER); // Center label
+        userLabel.setHorizontalAlignment(SwingConstants.CENTER);
         userLabel.setFont(new Font("", Font.BOLD, 16));
+//        userLabel.setForeground(new Color(50, 194, 214));
         add(userLabel, BorderLayout.NORTH);
 
         validate();
     }
 
-    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+    private ImageIcon resizeIcon(ImageIcon icon, int width) {
         Image img = icon.getImage();
-        Image resizedImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        Image resizedImg = img.getScaledInstance(width, 50, Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImg);
     }
 }

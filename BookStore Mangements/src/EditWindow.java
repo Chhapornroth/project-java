@@ -21,7 +21,7 @@ public class EditWindow extends JFrame implements ActionListener, ItemListener {
     private final JTable table;
     private final String namePanel;
     private JCheckBox MaleCheckBox, FemaleCheckBox;
-    String url = "jdbc:mariadb://localhost:3306/Bookstore_Management";
+    String url = "jdbc:mariadb://localhost:3306/Bookstore_Managements";
     String user = "root";
     String password = "";
     Connection conn;
@@ -160,7 +160,7 @@ public class EditWindow extends JFrame implements ActionListener, ItemListener {
             stmt.setString(5, jTextField1.getText());
             stmt.executeUpdate();
             if(namePanel.equals("BOOK RECORDS")){
-                adminPageInstance.updateBookRecordTable(table);
+                adminPageInstance.updateBookRecordTable();
             }
             else if(namePanel.equals("EMPLOYEE RECORDS")){
                 adminPageInstance.updateEmployeeRecordTable();

@@ -1,11 +1,14 @@
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,13 +17,14 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
     private final JPanel panel;
     private final JButton button;
     private final JPopupMenu popupMenu;
-    private final JMenuItem editItem;
-    private final JMenuItem deleteItem;
+    private final JMenuItem editItem, deleteItem;
+    private final JMenu sortItem;
+    private JMenuItem  ascendingItem, descendingItem;
     private int valueOfPrimaryKey;
     private JTable table;
     private int row;
     private final AdminPage adminPageInstance;
-    String url = "jdbc:mariadb://localhost:3306/Bookstore_Management";
+    String url = "jdbc:mariadb://localhost:3306/Bookstore_Managements";
     String user = "root";
     String password = "";
     Connection conn;
@@ -35,8 +39,19 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
 
         popupMenu = new JPopupMenu();
         editItem = new JMenuItem("Edit");
+        if(!namePanel.equals("SALES TRANSACTIONS")){
+            popupMenu.add(editItem);
+        }
+        sortItem = new JMenu("Sort");
+        popupMenu.add(sortItem);
+        ascendingItem = new JMenuItem("(Name or Title) Ascending");
+        sortItem.add(ascendingItem);
+        descendingItem = new JMenuItem("(Name or Title) Descending");
+        sortItem.add(descendingItem);
+        ascendingItem.addActionListener(this);
+        descendingItem.addActionListener(this);
+
         deleteItem = new JMenuItem("Delete");
-        popupMenu.add(editItem);
         popupMenu.add(deleteItem);
 
         button.addActionListener(this);
@@ -76,17 +91,37 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        String query = "";
         if (e.getSource() == button) {
             popupMenu.show(button, button.getWidth(), button.getHeight());
         } else if (e.getSource() == editItem) {
             new EditWindow(adminPageInstance, table, row, namePanel);
-        } else if (e.getSource() == deleteItem) {
+        }else if (e.getSource() == ascendingItem) {
+            TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(table.getModel());
+            table.setRowSorter(rowSorter);
+            rowSorter.setSortKeys(java.util.List.of(new RowSorter.SortKey(1, SortOrder.ASCENDING)));
+        }else if(e.getSource() == descendingItem){
+            TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(table.getModel());
+            table.setRowSorter(rowSorter);
+            rowSorter.setSortKeys(java.util.List.of(new RowSorter.SortKey(1, SortOrder.DESCENDING)));
+        }else if (e.getSource() == deleteItem) {
+            query = switch (namePanel) {
+                case "BOOK RECORDS" -> "DELETE FROM `tbl_book_records` WHERE book_id = " + valueOfPrimaryKey;
+                case "EMPLOYEE RECORDS" ->
+                        "DELETE FROM `tbl_employee_records` WHERE employee_id = " + valueOfPrimaryKey;
+                case "SALES TRANSACTIONS" ->
+                        "DELETE FROM `tbl_transactions_records` WHERE txn_id = " + valueOfPrimaryKey;
+                default -> query;
+            };
             try {
                 conn = DriverManager.getConnection(url, user, password);
-                String query = "DELETE FROM `tbl_book_records` WHERE book_id = " + valueOfPrimaryKey;
                 stmt = conn.createStatement();
                 stmt.executeUpdate(query);
-                adminPageInstance.updateBookRecordTable(table);
+                switch (namePanel) {
+                    case "BOOK RECORDS" -> adminPageInstance.updateBookRecordTable();
+                    case "EMPLOYEE RECORDS" -> adminPageInstance.updateEmployeeRecordTable();
+                    case "SALES TRANSACTIONS" -> adminPageInstance.updateSaleRecordTable();
+                }
             } catch (SQLException ex) {
                 LOGGER.log(Level.SEVERE, "An error occurred", ex);
             }finally{

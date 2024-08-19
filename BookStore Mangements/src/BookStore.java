@@ -12,6 +12,8 @@ public class BookStore{
             LOGGER.log(Level.SEVERE, "An error occurred", e);
         }
 //        SwingUtilities.invokeLater(FormLogin::new);
-        SwingUtilities.invokeLater(AdminPage::new);
+//        SwingUtilities.invokeLater(AdminPage::new);
+       SwingUtilities.invokeLater(AdminCashierDashboard::new);
+//        SwingUtilities.invokeLater(EmployeePage::new);
     }
 }

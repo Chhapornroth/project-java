@@ -83,12 +83,12 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         JLabel profileIcon = new JLabel(iconImage);
         profileIcon.setBounds(86, 100, 175,175);
 
-        JLabel nameProfile = new JLabel("Employee Name",  SwingConstants.CENTER);
+        JLabel nameProfile = new JLabel(name,  SwingConstants.CENTER);
 
         label("Employee ID: ", String.valueOf(id), 250);
         label("Name: ", name, 270);
         label("Phone Number: ", phoneNumber, 290);
-        nameProfile.setFont(font(24f));
+        nameProfile.setFont(new Font("Time news roman", Font.PLAIN, 20));
         nameProfile.setBounds(86, 160, 175, 175);
         bigCover.add(nameProfile, BorderLayout.CENTER);
 
@@ -96,10 +96,15 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         centerPanelOfCenter.setBackground(Color.WHITE);
         centerPanelOfCenter.setLayout(null);
 
+        JLabel welcomeLabel = new JLabel("Welcome to our Bookstore!");
+        welcomeLabel.setFont(font(60, "kh CN Star Regular.ttf"));
+        welcomeLabel.setForeground(new Color(43, 111, 255));
+        welcomeLabel.setBounds(475, 105, 900, 50);
 
         searchField = new JTextField();
         searchField.setBounds(410, 165, 770, 30);
 
+        centerPanel.add(welcomeLabel);
         centerPanel.add(searchField);
         centerPanel.add(centerPanelOfCenter);
         centerPanel.add(profileIcon);
@@ -142,7 +147,7 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         gbc.gridy = by;
         panel.add(button, gbc);
         JLabel nameLabel = new JLabel(iconName);
-        nameLabel.setFont(font(15));
+        nameLabel.setFont(font(15, "VintageCanvaRegular.ttf"));
         switch (iconName) {
             case "Home" -> gbc.insets = new Insets(5, 0, 25, 30);
             case "Book Info" -> gbc.insets = new Insets(5, 0, 25, 0);
@@ -155,83 +160,17 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         button.addActionListener(this);
         return button;
     }
-    private static Font font(float size){
+    private static Font font(float size, String name){
         Font font;
         try{
-            font = Font.createFont(Font.TRUETYPE_FONT, new File("D:\\Java\\project-java\\Font\\VintageCanvaRegular.ttf"));
+            font = Font.createFont(Font.TRUETYPE_FONT, new File("D:\\Java\\project-java\\Font\\" + name));
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(font);
-            font = font.deriveFont(Font.PLAIN, size);
+            font = font.deriveFont(Font.TRUETYPE_FONT, size);
         }catch (FontFormatException | IOException f){
             throw new RuntimeException(f);
         }
         return font;
-    }
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == homeButton){
-            homeButtonAction();
-        }else if(e.getSource() == bookInfoButton){
-            bookInfoButtonAction();
-            clickOnWhichButton = "bookInfoButton";
-        }else if(e.getSource() == billButton){
-            billButtonAction();
-            clickOnWhichButton = "billButton";
-        } else if (e.getSource() == logOutButton) {
-            AdminCashierDashboard adminCashierDashboard = new AdminCashierDashboard();
-            dispose();
-        } else if (e.getSource() == addButton) {
-            if(customerTextField.getText().isEmpty() || Objects.equals(bookIDComboBox.getSelectedItem(), "Select") || priceTextField.getText().isEmpty() || qtyTextField.getText().isEmpty()){
-                JOptionPane.showMessageDialog(null, "Please Complete all REQUIRED Field. OPTIONAL For Discount!!!");
-            }else {
-                try {
-                    connection = DriverManager.getConnection(url, user, password);
-                    preparedStatement = connection.prepareStatement("INSERT INTO `tbl_transactions_records`(`customer_name`, `book_id`, `employee_id`, `price`, `qty`, `discount`, `date`) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
-                    preparedStatement.setString(1, customerTextField.getText());
-                    int ID = Integer.parseInt(Objects.requireNonNull(bookIDComboBox.getSelectedItem()).toString());
-                    preparedStatement.setInt(2, ID);
-                    preparedStatement.setInt(3, id);
-                    preparedStatement.setFloat(4, Float.parseFloat(priceTextField.getText()));
-                    int QTY = Integer.parseInt(qtyTextField.getText());
-                    preparedStatement.setInt(5, QTY);
-                    preparedStatement.setFloat(6, disc);
-                    Date currentDate = new Date(System.currentTimeMillis());
-                    preparedStatement.setDate(7, currentDate);
-                    preparedStatement.executeUpdate();
-                    customerTextField.setText("");
-                    bookIDComboBox.setSelectedItem("Select");
-                    priceTextField.setText("");
-                    qtyTextField.setText("");
-                    _5_Percents.setSelected(false);
-                    _10_Percents.setSelected(false);
-                    _20_Percents.setSelected(false);
-
-                    statement = connection.createStatement();
-                    resultSet = statement.executeQuery("SELECT `stock` FROM `tbl_book_records` WHERE book_id = " + ID);
-                    int stock = 0;
-                    while (resultSet.next()) {
-                        stock = resultSet.getInt("stock");
-                    }
-                    preparedStatement1 = connection.prepareStatement("UPDATE `tbl_book_records` SET `stock`= ? WHERE book_id = ?");
-                    preparedStatement1.setInt(1, (stock - QTY));
-                    preparedStatement1.setInt(2, ID);
-                    preparedStatement1.executeUpdate();
-                } catch (SQLException e1) {
-                    throw new RuntimeException(e1);
-                } finally {
-                    try {
-                        if (resultSet != null) resultSet.close();
-                        if (statement != null) statement.close();
-                        if (preparedStatement != null) preparedStatement.close();
-                        if (preparedStatement1 != null) preparedStatement1.close();
-                        if (connection != null) connection.close();
-                    } catch (SQLException e2) {
-                        throw new RuntimeException(e2);
-                    }
-
-                }
-            }
-        }
     }
     private void homeButtonAction(){
         if(centerPanelOfCenter != null){
@@ -464,6 +403,72 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
             _10_Percents.setSelected(false);
         }else if (e.getStateChange() == ItemEvent.DESELECTED) {
             disc = 0.0f;
+        }
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == homeButton){
+            homeButtonAction();
+        }else if(e.getSource() == bookInfoButton){
+            bookInfoButtonAction();
+            clickOnWhichButton = "bookInfoButton";
+        }else if(e.getSource() == billButton){
+            billButtonAction();
+            clickOnWhichButton = "billButton";
+        } else if (e.getSource() == logOutButton) {
+            AdminCashierDashboard adminCashierDashboard = new AdminCashierDashboard();
+            dispose();
+        } else if (e.getSource() == addButton) {
+            if(customerTextField.getText().isEmpty() || Objects.equals(bookIDComboBox.getSelectedItem(), "Select") || priceTextField.getText().isEmpty() || qtyTextField.getText().isEmpty()){
+                JOptionPane.showMessageDialog(null, "Please Complete all REQUIRED Field. OPTIONAL For Discount!!!");
+            }else {
+                try {
+                    connection = DriverManager.getConnection(url, user, password);
+                    preparedStatement = connection.prepareStatement("INSERT INTO `tbl_transactions_records`(`customer_name`, `book_id`, `employee_id`, `price`, `qty`, `discount`, `date`) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement.setString(1, customerTextField.getText());
+                    int ID = Integer.parseInt(Objects.requireNonNull(bookIDComboBox.getSelectedItem()).toString());
+                    preparedStatement.setInt(2, ID);
+                    preparedStatement.setInt(3, id);
+                    preparedStatement.setFloat(4, Float.parseFloat(priceTextField.getText()));
+                    int QTY = Integer.parseInt(qtyTextField.getText());
+                    preparedStatement.setInt(5, QTY);
+                    preparedStatement.setFloat(6, disc);
+                    Date currentDate = new Date(System.currentTimeMillis());
+                    preparedStatement.setDate(7, currentDate);
+                    preparedStatement.executeUpdate();
+                    customerTextField.setText("");
+                    bookIDComboBox.setSelectedItem("Select");
+                    priceTextField.setText("");
+                    qtyTextField.setText("");
+                    _5_Percents.setSelected(false);
+                    _10_Percents.setSelected(false);
+                    _20_Percents.setSelected(false);
+
+                    statement = connection.createStatement();
+                    resultSet = statement.executeQuery("SELECT `stock` FROM `tbl_book_records` WHERE book_id = " + ID);
+                    int stock = 0;
+                    while (resultSet.next()) {
+                        stock = resultSet.getInt("stock");
+                    }
+                    preparedStatement1 = connection.prepareStatement("UPDATE `tbl_book_records` SET `stock`= ? WHERE book_id = ?");
+                    preparedStatement1.setInt(1, (stock - QTY));
+                    preparedStatement1.setInt(2, ID);
+                    preparedStatement1.executeUpdate();
+                } catch (SQLException e1) {
+                    throw new RuntimeException(e1);
+                } finally {
+                    try {
+                        if (resultSet != null) resultSet.close();
+                        if (statement != null) statement.close();
+                        if (preparedStatement != null) preparedStatement.close();
+                        if (preparedStatement1 != null) preparedStatement1.close();
+                        if (connection != null) connection.close();
+                    } catch (SQLException e2) {
+                        throw new RuntimeException(e2);
+                    }
+
+                }
+            }
         }
     }
 }

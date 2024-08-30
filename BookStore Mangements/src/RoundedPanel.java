@@ -10,7 +10,7 @@ public class RoundedPanel extends JPanel {
         super();
         this.cornerRadius = radius;
         this.bottomRounded = bottomRounded;
-        setOpaque(false); // Ensure panel background is transparent
+        setOpaque(false);
     }
 
     @Override
@@ -24,11 +24,9 @@ public class RoundedPanel extends JPanel {
         graphics.setColor(getBackground());
 
         if (bottomRounded) {
-            // Only bottom edges rounded
             graphics.fillRoundRect(0, 0, width - 1, height - 1, cornerRadius, cornerRadius);
-            graphics.fillRect(0, 0, width, height - cornerRadius); // Cover top corners with a rectangle
+            graphics.fillRect(0, 0, width, height - cornerRadius);
         } else {
-            // All edges rounded
             graphics.fillRoundRect(0, 0, width - 1, height - 1, cornerRadius, cornerRadius);
         }
     }

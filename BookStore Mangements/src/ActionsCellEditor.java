@@ -17,7 +17,7 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
     private final JPanel panel;
     private final JButton button;
     private final JPopupMenu popupMenu;
-    private final JMenuItem editItem, deleteItem;
+    private final JMenuItem editItem, deleteItem, viewProfile;
     private final JMenu sortItem;
     private JMenuItem  ascendingItem, descendingItem;
     private int valueOfPrimaryKey;
@@ -38,6 +38,10 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
         panel.add(button, BorderLayout.CENTER);
 
         popupMenu = new JPopupMenu();
+        viewProfile = new JMenuItem("View Profile");
+        if(namePanel.equals("EMPLOYEE RECORDS")){
+            popupMenu.add(viewProfile);
+        }
         editItem = new JMenuItem("Edit");
         if(!namePanel.equals("SALES TRANSACTIONS")){
             popupMenu.add(editItem);
@@ -57,6 +61,7 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
         button.addActionListener(this);
         editItem.addActionListener(this);
         deleteItem.addActionListener(this);
+        viewProfile.addActionListener(this);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -134,6 +139,8 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
             }
             System.out.println("Deleting is completed successfully!");
             JOptionPane.showMessageDialog(panel, "The Book with ID = " + valueOfPrimaryKey + " has been removed!");
+        } else if (e.getSource() == viewProfile) {
+            
         }
         fireEditingStopped();
     }

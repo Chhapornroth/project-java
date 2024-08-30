@@ -49,7 +49,7 @@ public class EditWindow extends JFrame implements ActionListener, ItemListener {
         GridBagConstraints gbc = new GridBagConstraints();
         TitledBorder titledBorder = new TitledBorder("Edit Data");
         titledBorder.setTitleColor(Color.BLUE);
-        titledBorder.setTitleFont(new Font("Arial", Font.BOLD, 12));
+        titledBorder.setTitleFont(new Font("Arial", Font.PLAIN, 12));
         panel.setBorder(new CompoundBorder(new EmptyBorder(0, 10, 10, 10), new TitledBorder(titledBorder)));
         add(panel, BorderLayout.CENTER);
         gbc.insets  = new Insets(0, 10, 10, 10);

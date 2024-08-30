@@ -15,5 +15,7 @@ public class BookStore{
 //        SwingUtilities.invokeLater(AdminPage::new);
        SwingUtilities.invokeLater(AdminCashierDashboard::new);
 //        SwingUtilities.invokeLater(EmployeePage::new);
+
+//        SwingUtilities.invokeLater(Login::new);
     }
 }

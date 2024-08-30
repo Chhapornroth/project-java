@@ -1,6 +1,5 @@
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 
 /*
@@ -25,12 +24,12 @@ public class AdminCashierDashboard extends JFrame{
         super("Admin and Cashier Dashboard");
         //add action to Admin Button
         adminButton.addActionListener((ActionEvent e) -> {
-            FormLogin formLogin = new FormLogin("Admin");
+            Login formLogin = new Login("Admin");
             dispose();
         });
         //add action to Cashier Button
         cashierButton.addActionListener((ActionEvent e) -> {
-            FormLogin formLogin = new FormLogin("Employee");
+            Login formLogin = new Login("Employee");
             dispose();
         });
         

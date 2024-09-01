@@ -254,7 +254,7 @@ public class Login extends JFrame implements FocusListener {
                     if(choice.equals("Admin")){
                         AdminPage adminpage = new AdminPage();
                     }else if(choice.equals("Employee")){
-                        EmployeePage employeepage = new EmployeePage(id, fullNameTextField.getText(), passwordTextField.getText());
+                        CashRegister cashRegister = new CashRegister(id, fullNameTextField.getText());
                     }
                     dispose();
                 }else{

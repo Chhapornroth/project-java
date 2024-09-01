@@ -13,6 +13,5 @@ public class BookStore{
         }
 
        SwingUtilities.invokeLater(AdminCashierDashboard::new);
-//       SwingUtilities.invokeLater(CashRegister::new);
     }
 }

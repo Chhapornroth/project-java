@@ -21,7 +21,6 @@ public class Login extends JFrame implements FocusListener {
     public Login(String choice) {
         setTitle("Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(950, 600));
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
@@ -195,8 +194,8 @@ public class Login extends JFrame implements FocusListener {
         rightPanel.add(loginButton0, gbc);
 
         gbc.gridy++;
-        JLabel signUp = new JLabel("Don't have an account? Sign Up Here!");
-        signUp.setFont(new Font("SansSerif", Font.BOLD, 12));
+        JLabel signUp = new JLabel("For account recovery, please get in touch with the admin");
+        signUp.setFont(new Font("SansSerif", Font.PLAIN, 12));
         signUp.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -208,9 +207,6 @@ public class Login extends JFrame implements FocusListener {
             }
         });
         rightPanel.add(signUp, gbc);
-        signUp.addMouseListener(new MouseAdapter() {
-           /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        });
     }
 
     @Override

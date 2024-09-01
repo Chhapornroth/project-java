@@ -5,6 +5,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
@@ -26,7 +27,9 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
     private final int id;
     private final String name;
     private final String phoneNumber;
+    private String email, imageIcon;
     private String clickOnWhichButton;
+    private boolean exists;
     String url = "jdbc:mariadb://localhost:3306/Bookstore_Managements";
     String user = "root";
     String password = "";
@@ -76,18 +79,21 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         RoundedPanel whitePanel = new RoundedPanel(200, false);
         whitePanel.setBackground(new Color(255, 255, 255));
         whitePanel.setBounds(82, 95, 185, 185);
+        JPanel img;
+        if(isExists()){
+            img = getRoundedPanel(new ImageIcon(new ImageIcon(imageIcon).getImage().getScaledInstance(1080, 1080, Image.SCALE_SMOOTH)));
+        }else {
+            img = getRoundedPanel(new ImageIcon("D:\\Java\\project-java\\icon\\profile.png"));
+        }
 
-        ImageIcon   img = new ImageIcon("D:\\Java\\project-java\\icon\\profile.png");
-        Image image = img.getImage().getScaledInstance(175, 175,Image.SCALE_SMOOTH);
-        ImageIcon iconImage = new ImageIcon(image);
-        JLabel profileIcon = new JLabel(iconImage);
-        profileIcon.setBounds(86, 100, 175,175);
+
+        img.setBounds(86, 100, 175,175);
 
         JLabel nameProfile = new JLabel(name,  SwingConstants.CENTER);
-
         label("Employee ID: ", String.valueOf(id), 250);
         label("Name: ", name, 270);
         label("Phone Number: ", phoneNumber, 290);
+        label("Email: ", email, 310);
         nameProfile.setFont(new Font("Time news roman", Font.PLAIN, 20));
         nameProfile.setBounds(86, 160, 175, 175);
         bigCover.add(nameProfile, BorderLayout.CENTER);
@@ -107,7 +113,7 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
         centerPanel.add(welcomeLabel);
         centerPanel.add(searchField);
         centerPanel.add(centerPanelOfCenter);
-        centerPanel.add(profileIcon);
+        centerPanel.add(img);
         centerPanel.add(whitePanel);
         centerPanel.add(coverColor);
         centerPanel.add(bigCover);
@@ -115,7 +121,7 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
     private void label(String name,String value, int y){
         JLabel label = new JLabel(name + value);
         label.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-        label.setBounds(100, y, 175,175);
+        label.setBounds(100, y, 300,175);
         centerPanel.add(label);
     }
     private void bottomLeftPanel(){
@@ -470,5 +476,59 @@ public class EmployeePage extends JFrame implements ActionListener, FocusListene
                 }
             }
         }
+    }
+    private boolean isExists (){
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+            preparedStatement = connection.prepareStatement("SELECT EXISTS ( SELECT 1 FROM tbl_employee_additional_info WHERE id = ?)");
+            preparedStatement.setInt(1, id);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                exists = resultSet.getBoolean(1);
+            }
+            if(exists){
+                preparedStatement = connection.prepareStatement("SELECT image, email FROM tbl_employee_additional_info WHERE id = ?");
+                preparedStatement.setInt(1, id);
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    imageIcon = resultSet.getString(1);
+                    email = resultSet.getString(2);
+                }
+            }
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return exists;
+    }
+    private static JPanel getRoundedPanel(ImageIcon imageIcon) {
+        return new JPanel() {
+            final int size = 175;
+            final Image image = imageIcon.getImage();
+            {
+                setOpaque(false);
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, size, size);
+                g2d.setClip(circle);
+                g2d.drawImage(image, 0, 0, size, size, this);
+                g2d.dispose();
+            }
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(size, size);
+            }
+        };
     }
 }

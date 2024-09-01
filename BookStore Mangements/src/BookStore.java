@@ -11,11 +11,8 @@ public class BookStore{
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             LOGGER.log(Level.SEVERE, "An error occurred", e);
         }
-//        SwingUtilities.invokeLater(FormLogin::new);
-//        SwingUtilities.invokeLater(AdminPage::new);
-       SwingUtilities.invokeLater(AdminCashierDashboard::new);
-//        SwingUtilities.invokeLater(EmployeePage::new);
 
-//        SwingUtilities.invokeLater(Login::new);
+//       SwingUtilities.invokeLater(AdminCashierDashboard::new);
+       SwingUtilities.invokeLater(CashRegister::new);
     }
 }

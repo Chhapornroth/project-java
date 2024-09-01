@@ -115,11 +115,13 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         bookRecordButton = buttonInit(option, gbcInOptionPanel, "Book Records", 22, 1, 10);
         employeeRecords = buttonInit(option, gbcInOptionPanel, "Employee Records", 25, 2, 7);
         saleRecords = buttonInit(option, gbcInOptionPanel, "Sale Records", 23, 3, 9);
+        JButton logoutButton = buttonInit(option, gbcInOptionPanel, "Log out", 23, 4, 9);
+        JButton exitButton = buttonInit(option, gbcInOptionPanel, "Exit", 25, 5, 9);
 
         SwingUtilities.invokeLater(homeButton::doClick);
 
         //this panel is here because we want to make a big gap or space below saleRecords Button
-        gbcInOptionPanel.gridy = 4;
+        gbcInOptionPanel.gridy = 6;
         gbcInOptionPanel.weighty = 1.0;
         gbcInOptionPanel.fill = GridBagConstraints.BOTH;
         option.add(new JPanel(), gbcInOptionPanel);
@@ -128,6 +130,8 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
         bookRecordButton.addActionListener(this);
         employeeRecords.addActionListener(this);
         saleRecords.addActionListener(this);
+        logoutButton.addActionListener(this);
+        exitButton.addActionListener(e -> System.exit(0));
         /*---------- Options Panel ----------*/
     }
     private JButton buttonInit(JPanel panel, GridBagConstraints gbc, String buttonName, int iconSize, int y, int gapBetweenIconAndButtonName){
@@ -178,13 +182,13 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
             bookRecordsTable = initializedTable(bookRecordsColumn, gbcCenterPanel, "BOOK RECORDS");
             updateBookRecordTable();
             txtBookId = new JTextField();
-            txtBookId.setText(lastRowValue("BOOK"));
+            txtBookId.setText("Auto Increment ID");
         }else if(namePanel.equals("EMPLOYEE RECORDS")){
             String[] employeeRecordsColumn = {"ID", "Full Name", "Gender", "Phone Number", "Date of Birth", "Actions"};
             employeeRecordsTable = initializedTable(employeeRecordsColumn, gbcCenterPanel, "EMPLOYEE RECORDS");
             updateEmployeeRecordTable();
             txtEmployeeId = new JTextField();
-            txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
+            txtEmployeeId.setText("Auto Increment ID");
         }
         /*----- the bottom of the center panel -----*/
     }
@@ -261,7 +265,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 gbc.insets = new Insets(0, 10, 10, 10);
                 txtBookId = itemPosition(gbc, inputBookInformationPanel, "Book ID: ", 0, 0, 1, 0, 250);
                 txtBookId.setEnabled(false);
-                txtBookId.setText(lastRowValue("BOOK"));
+                txtBookId.setText("Auto Increment ID");
                 txtAuthor = itemPosition(gbc, inputBookInformationPanel, "Author Name:", 2, 0, 3, 0, 250);
 
                 gbc.insets = new Insets(10, 10, 0, 10);
@@ -319,7 +323,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                             }
                         }
                         updateBookRecordTable();
-                        txtBookId.setText(lastRowValue("BOOK"));
+                        txtBookId.setText("Auto Increment ID");
                         txtAuthor.setText("");
                         txtTitle.setText("");
                         txtStock.setText("");
@@ -336,7 +340,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 gbc.insets = new Insets(0, 10, 10, 10);
                 txtEmployeeId = itemPosition(gbc, inputBookInformationPanel, "Employee ID:", 0, 0, 1, 0, 250);
                 txtEmployeeId.setEnabled(false);
-                txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
+                txtEmployeeId.setText("Auto Increment ID");
                 gbc.gridx = 2;
                 JLabel checkLabel = new JLabel("Gender: ");
                 checkLabel.setFont(new Font("", Font.PLAIN, 14));
@@ -403,7 +407,7 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                             }
                         }
                         updateEmployeeRecordTable();
-                        txtEmployeeId.setText(lastRowValue("EMPLOYEE"));
+                        txtEmployeeId.setText("Auto Increment ID");
                         MaleCheckBox.setSelected(false);
                         FemaleCheckBox.setSelected(false);
                         txtEmployeeName.setText("");
@@ -439,36 +443,14 @@ public class AdminPage extends JFrame implements ActionListener, ItemListener, F
                 centerPanel.add(salesRecordsScrollPane, BorderLayout.CENTER);
                 updateSaleRecordTable();
             }
-        }
-    }
-    private String lastRowValue (String table){
-        String sql;
-        switch (table) {
-            case "BOOK" -> sql = "SHOW TABLE STATUS LIKE 'tbl_book_records'";
-            case "EMPLOYEE" -> sql = "SHOW TABLE STATUS LIKE 'tbl_employee_records'";
-            default -> sql = "";
-        }
-        int value = 0;
-        try {
-            connection = DriverManager.getConnection(url, user, password);
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()){
-                value = resultSet.getInt("Auto_increment");
-            }
-        }catch (SQLException ex){
-            LOGGER.log(Level.SEVERE, "An error occurred", ex);
-        }finally {
-            try{
-                if (resultSet != null) resultSet.close();
-                if (statement != null) statement.close();
-                if (connection != null) connection.close();
-            }catch (SQLException ex){
-                LOGGER.log(Level.SEVERE, "An error occurred", ex);
+            case "Log out" ->{
+                AdminCashierDashboard adminCashierDashboard = new AdminCashierDashboard();
+                dispose();
             }
         }
-        return String.valueOf(value);
     }
+
+
     private RoundedPanel homePanelInformation(JPanel panel, int R, int G, int B, String imgName, String labelName1){
         RoundedPanel informationPanel = new RoundedPanel(20, false);
         informationPanel.setBackground(new Color(R, G, B));

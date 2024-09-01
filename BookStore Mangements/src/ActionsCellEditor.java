@@ -140,7 +140,7 @@ public class ActionsCellEditor extends AbstractCellEditor implements TableCellEd
             System.out.println("Deleting is completed successfully!");
             JOptionPane.showMessageDialog(panel, "The Book with ID = " + valueOfPrimaryKey + " has been removed!");
         } else if (e.getSource() == viewProfile) {
-            
+            ViewProfile viewProfile = new ViewProfile(valueOfPrimaryKey, adminPageInstance);
         }
         fireEditingStopped();
     }

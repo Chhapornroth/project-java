@@ -12,7 +12,7 @@ public class BookStore{
             LOGGER.log(Level.SEVERE, "An error occurred", e);
         }
 
-//       SwingUtilities.invokeLater(AdminCashierDashboard::new);
-       SwingUtilities.invokeLater(CashRegister::new);
+       SwingUtilities.invokeLater(AdminCashierDashboard::new);
+//       SwingUtilities.invokeLater(CashRegister::new);
     }
 }

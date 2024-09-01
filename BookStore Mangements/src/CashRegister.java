@@ -73,15 +73,12 @@ public class CashRegister extends JFrame implements ActionListener {
     }
     private RoundedPanel initializingButton(String iconName, GridBagConstraints gbc, JPanel panel, int bx, int lx) {
         RoundedPanel button = new RoundedPanel(30, false);
-        Image image = new ImageIcon("D:\\Java\\project-java\\icon\\" + iconName + "-icon.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH);
-        button.setLayout(new GridBagLayout());
+        ImageIcon image =new ImageIcon(new ImageIcon("D:\\Java\\project-java\\icon\\" + iconName + "-icon.png").getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH));
         button.setPreferredSize(new Dimension(100, 100));
         gbc.gridx = bx;
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 20,0, 20);
-
-        button.add(image);
-
+//        panel.add(image, gbc);
         panel.add(button, gbc);
         JLabel nameLabel = new JLabel(iconName);
         nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
